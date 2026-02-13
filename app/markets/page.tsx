@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, Clock, Globe2, Trophy, Dumbbell, Goal, Shield, Swords } from 'lucide-react';
+import { Search, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsClient } from '@/lib/use-is-client';
 import { DEFAULT_CHAIN_ID } from '@/lib/azuro-chains';
@@ -98,14 +98,14 @@ function extractCountryAndLeague(leagueName: string) {
   return { country: 'International', league: normalized, flag: '🌍' };
 }
 
-function SportIcon({ name }: { name?: string }) {
+function sportIconAsset(name?: string) {
   const value = (name ?? '').toLowerCase();
-  if (value.includes('football') || value.includes('soccer')) return <Goal className="h-4 w-4" aria-hidden />;
-  if (value.includes('basket')) return <Dumbbell className="h-4 w-4" aria-hidden />;
-  if (value.includes('tennis')) return <Swords className="h-4 w-4" aria-hidden />;
-  if (value.includes('hockey')) return <Shield className="h-4 w-4" aria-hidden />;
-  if (value.includes('esport')) return <Trophy className="h-4 w-4" aria-hidden />;
-  return <Globe2 className="h-4 w-4" aria-hidden />;
+  if (value.includes('football') || value.includes('soccer')) return '/icons/3d/football-3d.svg';
+  if (value.includes('basket')) return '/icons/3d/basketball-3d.svg';
+  if (value.includes('tennis')) return '/icons/3d/tennis-3d.svg';
+  if (value.includes('hockey')) return '/icons/3d/hockey-3d.svg';
+  if (value.includes('esport')) return '/icons/3d/esports-3d.svg';
+  return '/icons/3d/sport-3d.svg';
 }
 
 export default function MarketsPage() {
@@ -256,7 +256,13 @@ export default function MarketsPage() {
                   }}
                 >
                   <span className="inline-flex items-center gap-2">
-                    <SportIcon name={s?.name} />
+                    <Image
+                      src={sportIconAsset(s?.name)}
+                      alt=""
+                      width={18}
+                      height={18}
+                      className="h-[18px] w-[18px] object-contain"
+                    />
                     <span>{s?.name ?? s?.id}</span>
                   </span>
                   {s?.activeGamesCount != null && (
@@ -322,8 +328,10 @@ export default function MarketsPage() {
             className="pointer-events-none absolute -right-12 -top-12 h-40 w-auto opacity-10"
           />
           <h1 className="text-2xl font-bold">Sports Markets</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Azuro runs on <strong>EVM chains only</strong> (Polygon, Gnosis, Chiliz, Base). Connect your <strong>EVM wallet</strong> and pick a chain in the header to see markets.
+          <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+            <strong>GIBISBIG is a fully on-chain sportsbook powered by Azuro, configured for AI agent interactions.</strong>
+            <br />
+            It is a self-cashout mechanism: your wins are in your hands and cannot be arbitrarily stopped, with instant and pseudo-anonymous self-cashout.
           </p>
           <div className="flex flex-wrap gap-2 mt-2">
             {TIME_FILTERS.map((f) => (

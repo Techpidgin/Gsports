@@ -63,12 +63,15 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2 min-h-9">
-          <Button variant="outline" size="sm" asChild>
-            <a href="https://www.gibisbig.com" target="_blank" rel="noopener noreferrer" aria-label="Open Gibisbig website">
-              <Image src="/button.png" alt="" width={18} height={18} className="mr-2 h-4 w-4 object-contain" />
-              <span className="hidden sm:inline">Menu</span>
-            </a>
-          </Button>
+          <a
+            href="https://www.gibisbig.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open Gibisbig website"
+            className="inline-flex items-center"
+          >
+            <Image src="/button.png" alt="" width={36} height={36} className="h-9 w-9 object-contain" />
+          </a>
           <ClientOnly
             placeholder={
               <>

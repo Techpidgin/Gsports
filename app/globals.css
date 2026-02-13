@@ -35,8 +35,10 @@
     @apply bg-background text-foreground antialiased;
     font-family: var(--font-space-grotesk), sans-serif;
     background-image:
-      radial-gradient(circle at 15% -10%, hsl(var(--primary) / 0.14), transparent 35%),
-      radial-gradient(circle at 85% -15%, hsl(var(--accent) / 0.14), transparent 35%);
+      radial-gradient(circle at 12% -10%, hsl(48 98% 56% / 0.22), transparent 38%),
+      radial-gradient(circle at 90% -12%, hsl(274 85% 62% / 0.26), transparent 40%),
+      radial-gradient(circle at 50% 120%, hsl(var(--primary) / 0.16), transparent 46%),
+      radial-gradient(circle at 8% 88%, hsl(272 70% 58% / 0.18), transparent 36%);
     background-attachment: fixed;
   }
 }
