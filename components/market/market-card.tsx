@@ -2,6 +2,7 @@
 
 import { useConditions } from '@azuro-org/sdk';
 import Image from 'next/image';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -25,6 +26,44 @@ type MarketCardProps = {
   selectedOutcomeIds: string[];
 };
 
+function TeamBadge({ src, alt }: { src?: string | null; alt: string }) {
+  const [failed, setFailed] = useState(false);
+  const showFallback = !src || failed;
+
+  if (showFallback) {
+    return (
+      <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-muted">
+        <Image src="/logo.png" alt="" fill className="object-cover opacity-35" />
+        <div className="absolute inset-0 bg-black/45" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-muted">
+      <Image src={src} alt={alt} fill className="object-cover" sizes="32px" unoptimized onError={() => setFailed(true)} />
+    </div>
+  );
+}
+
+function ClashPanel({ src, side }: { src?: string | null; side: 'left' | 'right' }) {
+  const [failed, setFailed] = useState(false);
+  const showFallback = !src || failed;
+
+  return (
+    <div className="relative">
+      {showFallback ? (
+        <div className="relative h-full w-full bg-primary/20">
+          <Image src="/logo.png" alt="" fill className="object-cover opacity-20" />
+        </div>
+      ) : (
+        <Image src={src} alt="" fill className="object-cover" unoptimized onError={() => setFailed(true)} />
+      )}
+      <div className={cn('absolute inset-0', side === 'left' ? 'bg-gradient-to-r from-black/70 via-black/30 to-transparent' : 'bg-gradient-to-l from-black/70 via-black/30 to-transparent')} />
+    </div>
+  );
+}
+
 export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOutcomeIds }: MarketCardProps) {
   const { data: conditions, isLoading: conditionsLoading } = useConditions({ gameId: game.id });
 
@@ -43,22 +82,8 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOu
       <Card className="flex h-full flex-col overflow-hidden border-border/70 bg-card/80 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
         <div className="relative h-16 overflow-hidden border-b border-border/60">
           <div className="absolute inset-0 grid grid-cols-2">
-            <div className="relative">
-              {homeImage ? (
-                <Image src={homeImage} alt="" fill className="object-cover" unoptimized />
-              ) : (
-                <div className="h-full w-full bg-primary/20" />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
-            </div>
-            <div className="relative">
-              {awayImage ? (
-                <Image src={awayImage} alt="" fill className="object-cover" unoptimized />
-              ) : (
-                <div className="h-full w-full bg-accent/20" />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-l from-black/70 via-black/30 to-transparent" />
-            </div>
+            <ClashPanel src={homeImage} side="left" />
+            <ClashPanel src={awayImage} side="right" />
           </div>
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="rounded-full border border-primary/60 bg-black/70 px-3 py-0.5 text-[10px] font-semibold tracking-[0.22em] text-primary">
@@ -78,25 +103,13 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOu
           )}
           <div className="flex items-center gap-3 pt-1">
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              {homeImage ? (
-                <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-muted">
-                  <Image src={homeImage} alt="" fill className="object-cover" sizes="32px" unoptimized />
-                </div>
-              ) : (
-                <div className="h-8 w-8 shrink-0 rounded-full bg-muted" />
-              )}
+              <TeamBadge src={homeImage} alt={home} />
               <span className="truncate font-medium">{home}</span>
             </div>
             <span className="shrink-0 text-muted-foreground text-sm">vs</span>
             <div className="flex items-center gap-2 min-w-0 flex-1 justify-end">
               <span className="truncate font-medium text-right">{away}</span>
-              {awayImage ? (
-                <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-muted">
-                  <Image src={awayImage} alt="" fill className="object-cover" sizes="32px" unoptimized />
-                </div>
-              ) : (
-                <div className="h-8 w-8 shrink-0 rounded-full bg-muted" />
-              )}
+              <TeamBadge src={awayImage} alt={away} />
             </div>
           </div>
           <h3 className="sr-only">{eventTitle}</h3>

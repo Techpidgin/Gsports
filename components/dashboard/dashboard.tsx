@@ -2,6 +2,7 @@
 
 import { useGames, useBaseBetslip, useBetTokenBalance, useChain } from '@azuro-org/sdk';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MarketCard } from '@/components/market/market-card';
@@ -21,6 +22,12 @@ export function Dashboard() {
     filter: { limit: 12 },
     query: { enabled: isClient },
   });
+  const { data: liveGames } = useGames({
+    chainId,
+    isLive: true,
+    filter: { limit: 10 },
+    query: { enabled: isClient },
+  });
   const { items, addItem, removeItem } = useBaseBetslip();
   const { data: balance } = useBetTokenBalance();
   const { address, activeBets, settledBets, isRefreshing: betsRefreshing } = useUserBets();
@@ -28,6 +35,46 @@ export function Dashboard() {
   return (
     <div className="space-y-8">
       <section aria-labelledby="dashboard-heading">
+        <div className="mb-4 overflow-hidden rounded-xl border border-border/70 bg-background/35">
+          <div className="marquee-track py-2">
+            {[...Array(2)].map((_, loop) => (
+              <div key={loop} className="inline-flex items-center gap-2 px-4">
+                {(liveGames ?? []).length === 0 ? (
+                  <span className="text-xs text-muted-foreground">No live events right now. Switch chain to view more live markets.</span>
+                ) : (
+                  (liveGames ?? []).map((g) => {
+                    const participants = (g as { participants?: Array<{ name?: string; image?: string | null } | null> }).participants ?? [];
+                    const home = participants[0]?.name ?? 'Home';
+                    const away = participants[1]?.name ?? 'Away';
+                    const homeImg = participants[0]?.image ?? '/logo.png';
+                    const awayImg = participants[1]?.image ?? '/logo.png';
+                    return (
+                      <div key={`${loop}-${g.id}`} className="relative flex h-10 items-center overflow-hidden rounded-md border border-border/70 bg-card/50 pr-2">
+                        <div className="absolute inset-0 grid grid-cols-2 opacity-35">
+                          <div className="relative">
+                            <Image src={homeImg} alt="" fill className="object-cover" unoptimized />
+                            <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/20 to-transparent" />
+                          </div>
+                          <div className="relative">
+                            <Image src={awayImg} alt="" fill className="object-cover" unoptimized />
+                            <div className="absolute inset-0 bg-gradient-to-l from-black/75 via-black/20 to-transparent" />
+                          </div>
+                        </div>
+                        <div className="relative z-10 flex items-center gap-2 px-2 text-xs">
+                          <span className="relative flex h-3.5 w-3.5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-80" />
+                            <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-accent" />
+                          </span>
+                          <span className="font-medium">{home} vs {away}</span>
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
         <h1 id="dashboard-heading" className="text-3xl font-bold mb-2">
           Gibisbig
         </h1>

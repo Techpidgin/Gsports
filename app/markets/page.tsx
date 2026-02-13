@@ -204,9 +204,9 @@ export default function MarketsPage() {
           <div className="flex gap-2">
             <Link href="/live">
               <Button variant="ghost" size="sm" className="gap-2 w-full justify-start border border-border/60 bg-background/40">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
+                <span className="relative flex h-3.5 w-3.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-80" />
+                  <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-accent" />
                 </span>
                 Live
               </Button>
@@ -346,8 +346,22 @@ export default function MarketsPage() {
             ))}
           </div>
         </div>
-        <section className="rounded-xl border border-dashed border-border/70 bg-background/25 p-3 text-xs text-muted-foreground">
-          Banner space reserved (ad / promo / partner creative).
+        <section className="overflow-hidden rounded-xl border border-border/70 bg-background/35">
+          <div className="marquee-track py-2 text-xs font-medium text-muted-foreground">
+            {[...Array(2)].map((_, loop) => (
+              <div key={loop} className="inline-flex items-center gap-3 px-4">
+                <span className="rounded-full border border-primary/35 bg-primary/10 px-2 py-0.5 text-primary">What is Azuro?</span>
+                <span>Azuro powers fully on-chain sportsbook liquidity and settlement.</span>
+                <span className="h-1 w-1 rounded-full bg-primary/70" />
+                <span className="rounded-full border border-accent/40 bg-accent/10 px-2 py-0.5 text-accent">What is GIBISBIG?</span>
+                <span>AI-agent ready sports betting with self-cashout control.</span>
+                <span className="h-1 w-1 rounded-full bg-accent/70" />
+                <span className="rounded-full border border-purple-400/40 bg-purple-500/10 px-2 py-0.5 text-purple-300">Hot odds & live events</span>
+                <span>Track live clashes, compare prices, and cash out instantly.</span>
+                <span className="h-1 w-1 rounded-full bg-purple-400/70" />
+              </div>
+            ))}
+          </div>
         </section>
         <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/40 p-4">
           <Image

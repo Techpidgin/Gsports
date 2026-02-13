@@ -63,15 +63,6 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2 min-h-9">
-          <a
-            href="https://www.gibisbig.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Open Gibisbig website"
-            className="inline-flex items-center"
-          >
-            <Image src="/button.png" alt="" width={36} height={36} className="h-9 w-9 object-contain" />
-          </a>
           <ClientOnly
             placeholder={
               <>
