@@ -39,9 +39,34 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOu
   const startTime = game.startsAt ? new Date(Number(game.startsAt) * 1000) : null;
 
   return (
-    <div>
-      <Card className="overflow-hidden border-border/70 bg-card/80 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
-        <CardHeader className="pb-2">
+    <div className="h-full">
+      <Card className="flex h-full flex-col overflow-hidden border-border/70 bg-card/80 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_10px_30px_rgba(0,0,0,0.35)]">
+        <div className="relative h-16 overflow-hidden border-b border-border/60">
+          <div className="absolute inset-0 grid grid-cols-2">
+            <div className="relative">
+              {homeImage ? (
+                <Image src={homeImage} alt="" fill className="object-cover" unoptimized />
+              ) : (
+                <div className="h-full w-full bg-primary/20" />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
+            </div>
+            <div className="relative">
+              {awayImage ? (
+                <Image src={awayImage} alt="" fill className="object-cover" unoptimized />
+              ) : (
+                <div className="h-full w-full bg-accent/20" />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-l from-black/70 via-black/30 to-transparent" />
+            </div>
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="rounded-full border border-primary/60 bg-black/70 px-3 py-0.5 text-[10px] font-semibold tracking-[0.22em] text-primary">
+              CLASH
+            </span>
+          </div>
+        </div>
+        <CardHeader className="min-h-[126px] pb-2">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {sportName}
             {leagueName && ` · ${leagueName}`}
@@ -76,7 +101,7 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOu
           </div>
           <h3 className="sr-only">{eventTitle}</h3>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="flex-1 space-y-3">
           {conditionsLoading ? (
             <Skeleton className="h-20 w-full rounded-md" />
           ) : (
@@ -109,7 +134,7 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOu
                                 variant={isSelected ? 'default' : 'outline'}
                                 size="sm"
                                 className={cn(
-                                  'flex h-auto flex-col gap-0.5 py-2',
+                                  'flex h-12 flex-col gap-0.5 px-1',
                                   isSelected && 'ring-2 ring-primary-foreground/20'
                                 )}
                                 onClick={() =>
@@ -128,7 +153,7 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOu
                         </div>
                       </div>
                     ) : (
-                      <div className="flex flex-wrap gap-2">
+                      <div className="grid grid-cols-2 gap-2">
                         {outcomes.map((outcome, idx) => {
                           const rawOdds = (outcome as { odds?: string | number })?.odds;
                           const value = parseOdds(rawOdds);
@@ -147,15 +172,15 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOu
                               variant={isSelected ? 'default' : 'outline'}
                               size="sm"
                               className={cn(
-                                'min-w-[5.25rem] border-border/70 bg-background/50 tabular-nums hover:border-primary/55',
+                                'h-11 w-full justify-between border-border/70 bg-background/50 px-2 tabular-nums hover:border-primary/55',
                                 isSelected && 'ring-2 ring-primary-foreground/20'
                               )}
                               onClick={() => (isSelected ? onRemoveSelection(selection) : onAddSelection({ ...selection, gameId: game.id, isExpressForbidden: false }))}
                               aria-pressed={isSelected}
                               aria-label={`${displayLabel} ${formatOdds(value)}`}
                             >
-                              <span className="truncate">{displayLabel}</span>
-                              <span className="ml-1.5 font-semibold tabular-nums">{formatOdds(value)}</span>
+                              <span className="truncate text-xs">{displayLabel}</span>
+                              <span className="ml-1.5 font-semibold">{formatOdds(value)}</span>
                             </Button>
                           );
                         })}

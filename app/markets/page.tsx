@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
-import { Search, Clock } from 'lucide-react';
+import { Search, Clock, Globe2, Trophy, Dumbbell, Goal, Shield, Swords } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsClient } from '@/lib/use-is-client';
 import { DEFAULT_CHAIN_ID } from '@/lib/azuro-chains';
@@ -25,8 +25,91 @@ const TIME_FILTERS: { value: TimeFilter; label: string }[] = [
   { value: '6h', label: '6h' },
 ];
 
+const COUNTRY_TO_ISO: Record<string, string> = {
+  england: 'GB',
+  scotland: 'GB',
+  wales: 'GB',
+  ireland: 'IE',
+  france: 'FR',
+  germany: 'DE',
+  spain: 'ES',
+  italy: 'IT',
+  portugal: 'PT',
+  netherlands: 'NL',
+  belgium: 'BE',
+  switzerland: 'CH',
+  austria: 'AT',
+  sweden: 'SE',
+  norway: 'NO',
+  denmark: 'DK',
+  finland: 'FI',
+  poland: 'PL',
+  croatia: 'HR',
+  serbia: 'RS',
+  turkey: 'TR',
+  greece: 'GR',
+  czech: 'CZ',
+  slovakia: 'SK',
+  ukraine: 'UA',
+  romania: 'RO',
+  brazil: 'BR',
+  argentina: 'AR',
+  uruguay: 'UY',
+  mexico: 'MX',
+  usa: 'US',
+  canada: 'CA',
+  australia: 'AU',
+  japan: 'JP',
+  korea: 'KR',
+  china: 'CN',
+  india: 'IN',
+  nigeria: 'NG',
+  'south africa': 'ZA',
+  morocco: 'MA',
+};
+
+function isoToFlag(iso: string) {
+  return iso
+    .toUpperCase()
+    .split('')
+    .map((c) => String.fromCodePoint(127397 + c.charCodeAt(0)))
+    .join('');
+}
+
+function extractCountryAndLeague(leagueName: string) {
+  const normalized = leagueName.trim();
+  if (!normalized) return { country: 'International', league: 'Unknown', flag: '🌍' };
+  const separators = [' - ', ' | ', ': ', ' / ', ', '];
+  let firstPart = normalized;
+  for (const sep of separators) {
+    if (normalized.includes(sep)) {
+      firstPart = normalized.split(sep)[0].trim();
+      break;
+    }
+  }
+  const key = firstPart.toLowerCase();
+  const iso = COUNTRY_TO_ISO[key];
+  if (iso) {
+    let league = normalized.replace(new RegExp(`^${firstPart}[\\s\\-|:,/]*`, 'i'), '').trim();
+    if (!league) league = normalized;
+    return { country: firstPart, league, flag: isoToFlag(iso) };
+  }
+  return { country: 'International', league: normalized, flag: '🌍' };
+}
+
+function SportIcon({ name }: { name?: string }) {
+  const value = (name ?? '').toLowerCase();
+  if (value.includes('football') || value.includes('soccer')) return <Goal className="h-4 w-4" aria-hidden />;
+  if (value.includes('basket')) return <Dumbbell className="h-4 w-4" aria-hidden />;
+  if (value.includes('tennis')) return <Swords className="h-4 w-4" aria-hidden />;
+  if (value.includes('hockey')) return <Shield className="h-4 w-4" aria-hidden />;
+  if (value.includes('esport')) return <Trophy className="h-4 w-4" aria-hidden />;
+  return <Globe2 className="h-4 w-4" aria-hidden />;
+}
+
 export default function MarketsPage() {
   const [sportId, setSportId] = useState<string | undefined>(undefined);
+  const [leagueFilter, setLeagueFilter] = useState<string | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
   const isClient = useIsClient();
@@ -56,6 +139,12 @@ export default function MarketsPage() {
         return `${title} ${sport} ${league} ${names}`.toLowerCase().includes(q);
       });
     }
+    if (leagueFilter) {
+      list = list.filter((g) => {
+        const league = (g as { league?: { name?: string } }).league?.name ?? '';
+        return league === leagueFilter;
+      });
+    }
     if (timeFilter !== 'all') {
       const now = Date.now() / 1000;
       const oneDay = 86400;
@@ -73,7 +162,39 @@ export default function MarketsPage() {
       });
     }
     return list;
-  }, [games, q, timeFilter]);
+  }, [games, q, timeFilter, leagueFilter]);
+
+  const countryLeagueGroups = useMemo(() => {
+    if (!games) return [];
+    const groups = new Map<string, { country: string; flag: string; leagues: Map<string, { league: string; count: number; sport: string }> }>();
+    for (const game of games) {
+      const leagueName = (game as { league?: { name?: string } }).league?.name ?? '';
+      if (!leagueName) continue;
+      const sportName = (game as { sport?: { name?: string } }).sport?.name ?? 'Sport';
+      const parsed = extractCountryAndLeague(leagueName);
+      if (!groups.has(parsed.country)) {
+        groups.set(parsed.country, {
+          country: parsed.country,
+          flag: parsed.flag,
+          leagues: new Map(),
+        });
+      }
+      const group = groups.get(parsed.country)!;
+      const entry = group.leagues.get(leagueName);
+      group.leagues.set(leagueName, {
+        league: leagueName,
+        count: (entry?.count ?? 0) + 1,
+        sport: sportName,
+      });
+    }
+    return Array.from(groups.values())
+      .map((group) => ({
+        ...group,
+        leagues: Array.from(group.leagues.values()).sort((a, b) => b.count - a.count),
+      }))
+      .sort((a, b) => b.leagues.length - a.leagues.length)
+      .slice(0, 8);
+  }, [games]);
 
   return (
     <div className="flex flex-col lg:flex-row gap-6">
@@ -105,7 +226,10 @@ export default function MarketsPage() {
                 'w-full justify-between font-normal border border-transparent hover:border-border/70',
                 sportId === undefined && 'bg-muted border-border/70'
               )}
-              onClick={() => setSportId(undefined)}
+              onClick={() => {
+                setSportId(undefined);
+                setLeagueFilter(undefined);
+              }}
             >
               Top events
               {Array.isArray(nav) && (nav as { activeGamesCount?: number }[]).some((s) => s?.activeGamesCount != null) && (
@@ -125,9 +249,15 @@ export default function MarketsPage() {
                     'w-full justify-between font-normal border border-transparent hover:border-border/70',
                     sportId === s?.id && 'bg-muted border-border/70'
                   )}
-                  onClick={() => setSportId(s?.id ?? undefined)}
+                  onClick={() => {
+                    setSportId(s?.id ?? undefined);
+                    setLeagueFilter(undefined);
+                  }}
                 >
-                  {s?.name ?? s?.id}
+                  <span className="inline-flex items-center gap-2">
+                    <SportIcon name={s?.name} />
+                    <span>{s?.name ?? s?.id}</span>
+                  </span>
                   {s?.activeGamesCount != null && (
                     <span className="text-muted-foreground text-xs">{s.activeGamesCount}</span>
                   )}
@@ -135,6 +265,39 @@ export default function MarketsPage() {
               );
             })}
           </nav>
+          <div className="space-y-1.5 pt-2 border-t border-border/60">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground px-2 py-1">
+              Countries & Leagues
+            </p>
+            {countryLeagueGroups.length === 0 ? (
+              <p className="text-xs text-muted-foreground px-2">No league data available.</p>
+            ) : (
+              countryLeagueGroups.map((group) => (
+                <div key={group.country} className="rounded-md border border-border/50 bg-background/30 p-2">
+                  <p className="mb-1 text-xs font-semibold">
+                    <span className="mr-1">{group.flag}</span>
+                    {group.country}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {group.leagues.slice(0, 4).map((leagueItem) => (
+                      <Button
+                        key={leagueItem.league}
+                        variant={leagueFilter === leagueItem.league ? 'secondary' : 'outline'}
+                        size="sm"
+                        className="h-7 px-2 text-[11px]"
+                        onClick={() =>
+                          setLeagueFilter((prev) => (prev === leagueItem.league ? undefined : leagueItem.league))
+                        }
+                        title={`${leagueItem.league} (${leagueItem.sport})`}
+                      >
+                        {leagueItem.league}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </aside>
       <div className="flex-1 min-w-0 space-y-4">

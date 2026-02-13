@@ -37,18 +37,38 @@ export function BetSlip() {
   const potentialWin = stakeNum * totalOdds;
   const balanceFormatted = balance?.rawBalance != null ? formatTokenAmount(balance.rawBalance as bigint, 18) : '0';
   const isPending = betTxState?.isPending ?? betTxState?.isProcessing ?? false;
+  const ticketRef = items.length > 0 ? `#${items[0].conditionId.slice(0, 4)}${items.length}${items[items.length - 1].outcomeId.slice(-3)}` : '#----';
 
   return (
-    <Card className="sticky top-24 border-primary/20 bg-card/95">
+    <Card className="sticky top-24 overflow-hidden border-primary/30 bg-card/95">
+      <div className="pointer-events-none absolute inset-y-0 left-0 flex flex-col justify-around">
+        {[...Array(9)].map((_, i) => (
+          <span key={`left-${i}`} className="h-3 w-3 -translate-x-1/2 rounded-full bg-background" />
+        ))}
+      </div>
+      <div className="pointer-events-none absolute inset-y-0 right-0 flex flex-col justify-around">
+        {[...Array(9)].map((_, i) => (
+          <span key={`right-${i}`} className="h-3 w-3 translate-x-1/2 rounded-full bg-background" />
+        ))}
+      </div>
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center justify-between">
-          Betslip
+          <span className="inline-flex items-center gap-2">
+            Betslip
+            <span className="rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-[10px] uppercase tracking-[0.18em] text-primary">
+              Ticket
+            </span>
+          </span>
           {items.length > 0 && (
             <Button variant="ghost" size="sm" onClick={clear} aria-label="Clear betslip">
               Clear
             </Button>
           )}
         </CardTitle>
+        <div className="flex items-center justify-between border-t border-dashed border-border/70 pt-2 text-xs text-muted-foreground">
+          <span>Ref {ticketRef}</span>
+          <span>{items.length} pick{items.length === 1 ? '' : 's'}</span>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {items.length === 0 ? (
@@ -57,14 +77,20 @@ export function BetSlip() {
           <>
             <ul className="space-y-2" aria-label="Selections">
               {items.map((item) => (
-                <li key={`${item.conditionId}-${item.outcomeId}`} className="flex items-center justify-between text-sm gap-2">
-                  <span className="truncate">{item.outcomeId.slice(0, 8)}…</span>
-                  <div className="flex items-center gap-1">
+                <li
+                  key={`${item.conditionId}-${item.outcomeId}`}
+                  className="rounded-md border border-border/60 bg-background/40 p-2 text-sm"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="truncate font-medium">Outcome {item.outcomeId.slice(0, 8)}…</span>
                     <span className="text-muted-foreground">{odds?.[item.outcomeId] != null ? formatOdds(odds[item.outcomeId]) : '—'}</span>
+                  </div>
+                  <div className="mt-1 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+                    <span className="truncate font-mono">Cond {item.conditionId.slice(0, 10)}…</span>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7"
+                      className="h-6 w-6"
                       onClick={() => removeItem({ outcomeId: item.outcomeId, conditionId: item.conditionId })}
                       aria-label={`Remove ${item.outcomeId}`}
                     >
@@ -74,7 +100,10 @@ export function BetSlip() {
                 </li>
               ))}
             </ul>
-            <p className="text-sm font-medium">Combined odds: {formatOdds(totalOdds)}</p>
+            <div className="space-y-1 rounded-md border border-dashed border-border/70 bg-background/30 p-2">
+              <p className="text-xs text-muted-foreground">Combined odds</p>
+              <p className="text-base font-semibold tabular-nums">{formatOdds(totalOdds)}</p>
+            </div>
 
             <div className="space-y-2">
               <label htmlFor="stake" className="text-sm font-medium">
@@ -99,7 +128,12 @@ export function BetSlip() {
             {fee?.formattedRelayerFeeAmount && stakeNum > 0 && (
               <p className="text-xs text-muted-foreground">Fee: {fee.formattedRelayerFeeAmount}</p>
             )}
-            {stakeNum > 0 && <p className="text-sm font-medium">Potential win: {potentialWin.toFixed(2)}</p>}
+            {stakeNum > 0 && (
+              <div className="rounded-md border border-primary/30 bg-primary/10 p-2">
+                <p className="text-xs text-muted-foreground">Potential win</p>
+                <p className="text-base font-semibold">{potentialWin.toFixed(2)}</p>
+              </div>
+            )}
 
             <Button
               className="w-full"
