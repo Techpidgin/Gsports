@@ -1,0 +1,73 @@
+diff --git a/node_modules/@azuro-org/sdk/dist/index.js b/node_modules/@azuro-org/sdk/dist/index.js
+index 0000000..1111111 100644
+--- a/node_modules/@azuro-org/sdk/dist/index.js
++++ b/node_modules/@azuro-org/sdk/dist/index.js
+@@ -727,7 +727,7 @@
+     const [odds, setOdds] = useState({});
+     const [isFetching, setFetching] = useState(true);
+-    const { selectionsKey, conditionsKey } = useMemo(() => (selections?.reduce((acc, { conditionId, outcomeId }) => {
++    const { selectionsKey, conditionsKey } = useMemo(() => ((selections ?? []).reduce((acc, { conditionId, outcomeId }) => {
+         acc.selectionsKey += acc.selectionsKey ? `-${conditionId}/${outcomeId}` : `${conditionId}/${outcomeId}`;
+         acc.conditionsKey += acc.conditionsKey ? `-${conditionId}` : `${conditionId}`;
+         return acc;
+@@ -1843,14 +1843,16 @@
+         queryFn: async () => {
+             const variables = {
+                 first: 1000,
+                 orderBy,
+                 orderDirection: orderDir,
+                 where: {
+                     state: isLive ? GameState.Live : GameState.Prematch,
+                     activeAndStoppedConditionsCount_not: 0,
+-                    conditions_: {},
+-                    sport_: {},
+-                    league_: {},
+                 },
+             };
+             if (isLive) {
+@@ -1862,6 +1864,9 @@
+             else {
+                 variables.where.activeConditionsCount_not = 0;
+             }
++            if (filter.sportHub || filter.sportSlug || filter.sportIds?.length) {
++                variables.where.sport_ = variables.where.sport_ || {};
++            }
++            if (filter.leagueSlug) {
++                variables.where.league_ = variables.where.league_ || {};
++            }
++            if (filter.maxMargin || filter.conditionsState) {
++                variables.where.conditions_ = variables.where.conditions_ || {};
++            }
+            if (filter.limit) {
+                variables.first = filter.limit;
+            }
+@@ -661,10 +666,24 @@
+ const gqlRequest = async (props) => {
+     const { url, document, variables } = props;
++    const queryStr = print(document);
++    if (typeof window !== 'undefined' && (url.includes('onchainfeed.org') || url.includes('thegraph.azuro.org'))) {
++        const proxyRes = await fetch('/api/subgraph', {
++            method: 'POST',
++            headers: {
++                'Content-Type': 'application/json',
++                Accept: 'application/graphql-response+json',
++            },
++            body: JSON.stringify({ url, query: queryStr, variables }),
++            cache: 'no-cache',
++        });
++        if (!proxyRes.ok) {
++            throw new Error('Network response was not ok');
++        }
++        const { data } = await proxyRes.json();
++        return data;
++    }
+     const opName = extractOperationName(document);
+     const params = new URLSearchParams();
+     if (opName) {
+@@ -678,7 +697,7 @@
+         body: JSON.stringify({
+-            query: print(document),
++            query: queryStr,
+             variables,
+         }),
+         cache: 'no-cache',
