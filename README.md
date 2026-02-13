@@ -46,16 +46,18 @@ npm install --legacy-peer-deps
 
 Ensure `graphql-tag` and `@azuro-org/sdk-social-aa-connector` are installed (they are listed in `package.json`).
 
-After install, `postinstall` runs `patch-package` to apply a patch to `@azuro-org/sdk`. Patches live in `patches/`.
-
-**SDK patch:** The Azuro SDK’s internal `useOdds` hook can receive `selections` as `undefined` when the betslip or market passes the wrong shape. The patch changes `selections?.reduce(...)` to `(selections ?? []).reduce(...)` so the hook never throws. The app also reads odds from `useConditions` (condition outcomes) instead of `useOdds` where appropriate.
-
 ### Environment
 
 Copy `.env.example` to `.env.local` and set:
 
-- `NEXT_PUBLIC_AFFILIATE_ADDRESS` (optional): Your Azuro affiliate address
+- `NEXT_PUBLIC_AFFILIATE_ADDRESS`: Azuro affiliate address used for bet/freebet attribution
+- `NEXT_PUBLIC_OWNER_ADDRESS` (optional): owner label shown in dashboard badges
+- `NEXT_PUBLIC_TREASURY_ADDRESS` (optional): treasury label shown in dashboard badges
+- `NEXT_PUBLIC_PROMO_CAMPAIGN_ID` (optional): promo identifier shown in marquee/copy
+- `NEXT_PUBLIC_PROMO_HEADLINE` (optional): primary markets hero headline
+- `NEXT_PUBLIC_PROMO_SECONDARY` (optional): secondary markets hero line
 - `NEXT_PUBLIC_SOLANA_RPC` (optional): Solana RPC URL (default: mainnet-beta)
+- `NEXT_PUBLIC_SUPPORT_TELEGRAM_URL` (optional): support link on `/geo`
 
 ### Run
 
@@ -76,8 +78,14 @@ npm start
 
 1. Push to GitHub and import the repo in Vercel.
 2. Add environment variables in Vercel project settings:
-   - `NEXT_PUBLIC_AFFILIATE_ADDRESS` (optional)
+   - `NEXT_PUBLIC_AFFILIATE_ADDRESS`
+   - `NEXT_PUBLIC_OWNER_ADDRESS` (optional)
+   - `NEXT_PUBLIC_TREASURY_ADDRESS` (optional)
+   - `NEXT_PUBLIC_PROMO_CAMPAIGN_ID` (optional)
+   - `NEXT_PUBLIC_PROMO_HEADLINE` (optional)
+   - `NEXT_PUBLIC_PROMO_SECONDARY` (optional)
    - `NEXT_PUBLIC_SOLANA_RPC` (optional)
+   - `NEXT_PUBLIC_SUPPORT_TELEGRAM_URL` (optional)
 3. Deploy. No extra config needed for Next.js.
 
 ## Project Structure

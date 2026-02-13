@@ -10,10 +10,11 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, Clock } from 'lucide-react';
+import { Search, Clock, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsClient } from '@/lib/use-is-client';
 import { DEFAULT_CHAIN_ID } from '@/lib/azuro-chains';
+import { APP_CONFIG } from '@/lib/app-config';
 
 type TimeFilter = 'all' | 'today' | 'tomorrow' | '1h' | '3h' | '6h';
 
@@ -111,6 +112,8 @@ function sportIconAsset(name?: string) {
 export default function MarketsPage() {
   const [sportId, setSportId] = useState<string | undefined>(undefined);
   const [leagueFilter, setLeagueFilter] = useState<string | undefined>(undefined);
+  const [countryFilter, setCountryFilter] = useState<string | undefined>(undefined);
+  const [expandedCountries, setExpandedCountries] = useState<Record<string, boolean>>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [timeFilter, setTimeFilter] = useState<TimeFilter>('all');
   const isClient = useIsClient();
@@ -146,6 +149,12 @@ export default function MarketsPage() {
         return league === leagueFilter;
       });
     }
+    if (countryFilter) {
+      list = list.filter((g) => {
+        const league = (g as { league?: { name?: string } }).league?.name ?? '';
+        return extractCountryAndLeague(league).country === countryFilter;
+      });
+    }
     if (timeFilter !== 'all') {
       const now = Date.now() / 1000;
       const oneDay = 86400;
@@ -163,7 +172,7 @@ export default function MarketsPage() {
       });
     }
     return list;
-  }, [games, q, timeFilter, leagueFilter]);
+  }, [games, q, timeFilter, leagueFilter, countryFilter]);
 
   const countryLeagueGroups = useMemo(() => {
     if (!games) return [];
@@ -194,8 +203,13 @@ export default function MarketsPage() {
         leagues: Array.from(group.leagues.values()).sort((a, b) => b.count - a.count),
       }))
       .sort((a, b) => b.leagues.length - a.leagues.length)
-      .slice(0, 8);
+      .slice(0, 12);
   }, [games]);
+
+  const activeSportName = useMemo(() => {
+    const active = sports.find((s) => (s as { id?: string }).id === sportId) as { name?: string } | undefined;
+    return active?.name ?? 'Sport';
+  }, [sports, sportId]);
 
   return (
     <div className="flex flex-col lg:flex-row gap-6">
@@ -230,6 +244,7 @@ export default function MarketsPage() {
               onClick={() => {
                 setSportId(undefined);
                 setLeagueFilter(undefined);
+                setCountryFilter(undefined);
               }}
             >
               Top events
@@ -253,6 +268,8 @@ export default function MarketsPage() {
                   onClick={() => {
                     setSportId(s?.id ?? undefined);
                     setLeagueFilter(undefined);
+                    setCountryFilter(undefined);
+                    setExpandedCountries({});
                   }}
                 >
                   <span className="inline-flex items-center gap-2">
@@ -274,33 +291,58 @@ export default function MarketsPage() {
           </nav>
           <div className="space-y-1.5 pt-2 border-t border-border/60">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground px-2 py-1">
-              Countries & Leagues
+              {sportId ? `${activeSportName} Countries & Leagues` : 'Countries & Leagues'}
             </p>
             {countryLeagueGroups.length === 0 ? (
               <p className="text-xs text-muted-foreground px-2">No league data available.</p>
             ) : (
               countryLeagueGroups.map((group) => (
                 <div key={group.country} className="rounded-md border border-border/50 bg-background/30 p-2">
-                  <p className="mb-1 text-xs font-semibold">
-                    <span className="mr-1">{group.flag}</span>
-                    {group.country}
-                  </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {group.leagues.slice(0, 4).map((leagueItem) => (
-                      <Button
-                        key={leagueItem.league}
-                        variant={leagueFilter === leagueItem.league ? 'secondary' : 'outline'}
-                        size="sm"
-                        className="h-7 px-2 text-[11px]"
-                        onClick={() =>
-                          setLeagueFilter((prev) => (prev === leagueItem.league ? undefined : leagueItem.league))
-                        }
-                        title={`${leagueItem.league} (${leagueItem.sport})`}
-                      >
-                        {leagueItem.league}
-                      </Button>
-                    ))}
-                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      'mb-1 h-7 w-full justify-between px-1.5 text-xs',
+                      countryFilter === group.country && 'text-primary'
+                    )}
+                    onClick={() => {
+                      setCountryFilter((prev) => (prev === group.country ? undefined : group.country));
+                      setExpandedCountries((prev) => ({
+                        ...prev,
+                        [group.country]: !prev[group.country],
+                      }));
+                    }}
+                  >
+                    <span className="inline-flex items-center gap-1.5">
+                      <span>{group.flag}</span>
+                      <span>{group.country}</span>
+                      <span className="text-[10px] text-muted-foreground">({group.leagues.length})</span>
+                    </span>
+                    <ChevronDown
+                      className={cn(
+                        'h-3.5 w-3.5 text-muted-foreground transition-transform',
+                        expandedCountries[group.country] && 'rotate-180'
+                      )}
+                    />
+                  </Button>
+                  {expandedCountries[group.country] && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {group.leagues.slice(0, 8).map((leagueItem) => (
+                        <Button
+                          key={leagueItem.league}
+                          variant={leagueFilter === leagueItem.league ? 'secondary' : 'outline'}
+                          size="sm"
+                          className="h-7 px-2 text-[11px]"
+                          onClick={() =>
+                            setLeagueFilter((prev) => (prev === leagueItem.league ? undefined : leagueItem.league))
+                          }
+                          title={`${leagueItem.league} (${leagueItem.sport})`}
+                        >
+                          {leagueItem.league}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))
             )}
@@ -329,9 +371,9 @@ export default function MarketsPage() {
           />
           <h1 className="text-2xl font-bold">Sports Markets</h1>
           <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-            <strong>GIBISBIG is a fully on-chain sportsbook powered by Azuro, configured for AI agent interactions.</strong>
+            <strong>{APP_CONFIG.promoHeadline}.</strong>
             <br />
-            It is a self-cashout mechanism: your wins are in your hands and cannot be arbitrarily stopped, with instant and pseudo-anonymous self-cashout.
+            {APP_CONFIG.promoSecondary}.
           </p>
           <div className="flex flex-wrap gap-2 mt-2">
             {TIME_FILTERS.map((f) => (
@@ -347,7 +389,7 @@ export default function MarketsPage() {
           </div>
         </div>
         <section className="overflow-hidden rounded-xl border border-border/70 bg-background/35">
-          <div className="marquee-track py-2 text-xs font-medium text-muted-foreground">
+          <div className="marquee-track py-3 text-sm font-medium text-muted-foreground">
             {[...Array(2)].map((_, loop) => (
               <div key={loop} className="inline-flex items-center gap-3 px-4">
                 <span className="rounded-full border border-primary/35 bg-primary/10 px-2 py-0.5 text-primary">What is Azuro?</span>
@@ -356,7 +398,9 @@ export default function MarketsPage() {
                 <span className="rounded-full border border-accent/40 bg-accent/10 px-2 py-0.5 text-accent">What is GIBISBIG?</span>
                 <span>AI-agent ready sports betting with self-cashout control.</span>
                 <span className="h-1 w-1 rounded-full bg-accent/70" />
-                <span className="rounded-full border border-purple-400/40 bg-purple-500/10 px-2 py-0.5 text-purple-300">Hot odds & live events</span>
+                <span className="rounded-full border border-purple-400/40 bg-purple-500/10 px-2 py-0.5 text-purple-300">
+                  Hot odds & live events ({APP_CONFIG.promoCampaignId})
+                </span>
                 <span>Track live clashes, compare prices, and cash out instantly.</span>
                 <span className="h-1 w-1 rounded-full bg-purple-400/70" />
               </div>

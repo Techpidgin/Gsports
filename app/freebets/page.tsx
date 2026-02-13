@@ -5,6 +5,7 @@ import { useAccount } from 'wagmi';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { formatTokenAmount } from '@/lib/utils';
+import { APP_CONFIG } from '@/lib/app-config';
 
 function toBigIntAmount(v: unknown): bigint | null {
   if (v == null) return null;
@@ -19,7 +20,7 @@ function toBigIntAmount(v: unknown): bigint | null {
   return null;
 }
 
-const AFFILIATE = (process.env.NEXT_PUBLIC_AFFILIATE_ADDRESS ?? '0x0000000000000000000000000000000000000000') as `0x${string}`;
+const AFFILIATE = APP_CONFIG.affiliateAddress;
 
 export default function FreebetsPage() {
   const { address } = useAccount();

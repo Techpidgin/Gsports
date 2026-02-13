@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Trash2, Loader2 } from 'lucide-react';
 import { formatOdds, formatTokenAmount } from '@/lib/utils';
 import { getConditionMarketName, getOutcomeDisplayLabel } from '@/lib/outcome-labels';
+import { APP_CONFIG } from '@/lib/app-config';
 
 type TicketItem = {
   outcomeId: string;
@@ -98,7 +99,7 @@ export function BetSlip() {
   const { submit, betTx: betTxState } = useBet({
     betAmount,
     slippage: 1,
-    affiliate: (process.env.NEXT_PUBLIC_AFFILIATE_ADDRESS as `0x${string}`) ?? '0x0000000000000000000000000000000000000000',
+    affiliate: APP_CONFIG.affiliateAddress,
     selections,
     odds: odds ?? {},
     totalOdds,
