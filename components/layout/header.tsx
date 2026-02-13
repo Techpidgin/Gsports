@@ -22,19 +22,28 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 shadow-[0_8px_24px_rgba(0,0,0,0.35)] backdrop-blur supports-[backdrop-filter]:bg-background/75">
-      <div className="container mx-auto flex min-h-16 items-center justify-between gap-4 px-4 py-3 max-w-7xl">
-        <Link href="/" className="flex items-center shrink-0 gap-3" aria-label="Gibisbig home">
+      <div className="container mx-auto flex min-h-20 items-center justify-between gap-4 px-4 py-3 max-w-7xl">
+        <Link href="/" className="flex items-center shrink-0 gap-4" aria-label="Gibisbig home">
           <Image
             src="/logo.png"
             alt="Gibisbig"
             width={640}
             height={160}
-            className="h-12 w-auto max-h-16 object-contain object-left"
+            className="h-20 w-auto max-h-24 object-contain object-left md:h-28"
             priority
           />
-          <span className="hidden lg:inline-flex rounded-full border border-primary/35 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
-            Sportsbook
-          </span>
+          <div className="hidden md:flex flex-col gap-1">
+            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/35 bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
+              <span aria-hidden>🇳🇬</span>
+              Sportsbook
+            </span>
+            <span className="inline-flex items-center gap-2 text-[11px] text-muted-foreground">
+              Powered by Azuro
+              <span className="inline-flex h-5 w-20 items-center justify-center rounded border border-dashed border-border/80 bg-background/40">
+                <Image src="/azuro.png" alt="Azuro" width={72} height={18} className="h-3.5 w-auto object-contain" />
+              </span>
+            </span>
+          </div>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Main">
@@ -54,6 +63,12 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2 min-h-9">
+          <Button variant="outline" size="sm" asChild>
+            <a href="https://www.gibisbig.com" target="_blank" rel="noopener noreferrer" aria-label="Open Gibisbig website">
+              <Image src="/button.png" alt="" width={18} height={18} className="mr-2 h-4 w-4 object-contain" />
+              <span className="hidden sm:inline">Menu</span>
+            </a>
+          </Button>
           <ClientOnly
             placeholder={
               <>

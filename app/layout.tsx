@@ -1,8 +1,29 @@
 import type { Metadata } from 'next';
+import { IBM_Plex_Mono, Inconsolata, Space_Grotesk } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { Providers } from '@/providers/providers';
 import { Header } from '@/components/layout/header';
 import './globals.css';
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-space-grotesk',
+  display: 'swap',
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ['latin'],
+  variable: '--font-ibm-plex-mono',
+  display: 'swap',
+  weight: ['100', '200', '300', '400', '500', '600', '700'],
+});
+
+const inconsolata = Inconsolata({
+  subsets: ['latin'],
+  variable: '--font-inconsolata',
+  display: 'swap',
+  weight: ['200', '300', '400', '500', '600', '700', '800', '900'],
+});
 
 export const metadata: Metadata = {
   title: 'Gibisbig | Decentralized Betting on Azuro',
@@ -13,7 +34,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning>
+      <body
+        suppressHydrationWarning
+        className={`${spaceGrotesk.variable} ${ibmPlexMono.variable} ${inconsolata.variable}`}
+      >
         <Providers>
           <Header />
           <main className="container mx-auto px-4 py-6 max-w-7xl">{children}</main>

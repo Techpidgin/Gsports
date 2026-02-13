@@ -33,6 +33,7 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: var(--font-space-grotesk), sans-serif;
     background-image:
       radial-gradient(circle at 15% -10%, hsl(var(--primary) / 0.14), transparent 35%),
       radial-gradient(circle at 85% -15%, hsl(var(--accent) / 0.14), transparent 35%);
@@ -48,4 +49,67 @@
 ::selection {
   background: hsl(var(--primary) / 0.3);
   color: hsl(var(--foreground));
+}
+
+.space-grotesk-ui {
+  font-family: var(--font-space-grotesk), sans-serif;
+  font-optical-sizing: auto;
+}
+
+.inconsolata-ui {
+  font-family: var(--font-inconsolata), monospace;
+  font-optical-sizing: auto;
+  font-variation-settings: 'wdth' 100;
+}
+
+.ibm-plex-mono-thin,
+.ibm-plex-mono-thin-italic {
+  font-family: var(--font-ibm-plex-mono), monospace;
+  font-weight: 100;
+}
+
+.ibm-plex-mono-extralight,
+.ibm-plex-mono-extralight-italic {
+  font-family: var(--font-ibm-plex-mono), monospace;
+  font-weight: 200;
+}
+
+.ibm-plex-mono-light,
+.ibm-plex-mono-light-italic {
+  font-family: var(--font-ibm-plex-mono), monospace;
+  font-weight: 300;
+}
+
+.ibm-plex-mono-regular,
+.ibm-plex-mono-regular-italic {
+  font-family: var(--font-ibm-plex-mono), monospace;
+  font-weight: 400;
+}
+
+.ibm-plex-mono-medium,
+.ibm-plex-mono-medium-italic {
+  font-family: var(--font-ibm-plex-mono), monospace;
+  font-weight: 500;
+}
+
+.ibm-plex-mono-semibold,
+.ibm-plex-mono-semibold-italic {
+  font-family: var(--font-ibm-plex-mono), monospace;
+  font-weight: 600;
+}
+
+.ibm-plex-mono-bold,
+.ibm-plex-mono-bold-italic {
+  font-family: var(--font-ibm-plex-mono), monospace;
+  font-weight: 700;
+}
+
+.ibm-plex-mono-thin-italic,
+.ibm-plex-mono-extralight-italic,
+.ibm-plex-mono-light-italic,
+.ibm-plex-mono-regular-italic,
+.ibm-plex-mono-medium-italic,
+.ibm-plex-mono-semibold-italic,
+.ibm-plex-mono-bold-italic {
+  font-style: italic;
 }

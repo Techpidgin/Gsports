@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Search, Clock, Globe2, Trophy, Dumbbell, Goal, Shield, Swords } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useIsClient } from '@/lib/use-is-client';
@@ -312,7 +313,14 @@ export default function MarketsPage() {
             aria-label="Search markets"
           />
         </div>
-        <div className="rounded-xl border border-border/80 bg-card/50 p-4">
+        <div className="relative overflow-hidden rounded-xl border border-border/80 bg-card/50 p-4">
+          <Image
+            src="/logo.png"
+            alt=""
+            width={900}
+            height={280}
+            className="pointer-events-none absolute -right-12 -top-12 h-40 w-auto opacity-10"
+          />
           <h1 className="text-2xl font-bold">Sports Markets</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Azuro runs on <strong>EVM chains only</strong> (Polygon, Gnosis, Chiliz, Base). Connect your <strong>EVM wallet</strong> and pick a chain in the header to see markets.
@@ -330,7 +338,18 @@ export default function MarketsPage() {
             ))}
           </div>
         </div>
-        <div className="grid lg:grid-cols-3 gap-8">
+        <section className="rounded-xl border border-dashed border-border/70 bg-background/25 p-3 text-xs text-muted-foreground">
+          Banner space reserved (ad / promo / partner creative).
+        </section>
+        <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/40 p-4">
+          <Image
+            src="/logo.png"
+            alt=""
+            width={1200}
+            height={1200}
+            className="pointer-events-none absolute left-1/2 top-1/2 h-[70%] w-auto -translate-x-1/2 -translate-y-1/2 opacity-[0.06]"
+          />
+          <div className="grid lg:grid-cols-3 gap-8 relative">
           <div className="lg:col-span-2">
             {isLoading ? (
               <div className="grid gap-4 sm:grid-cols-2">
@@ -373,6 +392,7 @@ export default function MarketsPage() {
           </div>
           <div className="lg:col-span-1">
             <BetSlip />
+          </div>
           </div>
         </div>
       </div>
