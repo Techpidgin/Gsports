@@ -125,10 +125,10 @@ export function Dashboard() {
         <div className="mb-6 lg:mb-8 overflow-hidden rounded-xl border border-border/70 bg-card/40">
           <Link href="/markets" className="block">
             <div className="relative min-h-[280px] sm:min-h-[360px] md:min-h-[400px] w-full bg-muted/30">
-              <Image src="/banner1.png" alt="" fill className="object-contain object-center" />
+              <Image src="/banner1.png" alt="" fill className="object-cover object-[center_35%]" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
               <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6 pb-6 sm:pb-8">
-                <p className="max-w-2xl text-sm sm:text-base text-white/95 drop-shadow-md leading-relaxed">
+                <p className="max-w-3xl text-base sm:text-lg md:text-xl text-white/95 drop-shadow-md leading-relaxed">
                   Onchain decentralized prediction and sports markets. Suitable for agentic interactions — super fast, self cashout, no bans, no limits, no KYC.
                 </p>
               </div>
