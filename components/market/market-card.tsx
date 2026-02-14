@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { formatOdds, parseOdds } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { getOutcomeDisplayLabel, getConditionMarketName, isFullTimeResultStyle } from '@/lib/outcome-labels';
+import { sportIconAsset } from '@/lib/sport-icons';
 
 type Game = {
   id: string;
@@ -103,7 +104,8 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedSe
           </div>
         </div>
         <CardHeader className="min-h-[126px] pb-2">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
+            <Image src={sportIconAsset(sportName)} alt="" width={14} height={14} className="h-3.5 w-3.5 shrink-0 opacity-80" />
             {sportName}
             {leagueName && ` · ${leagueName}`}
           </p>

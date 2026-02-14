@@ -17,6 +17,7 @@ import { DEFAULT_CHAIN_ID } from '@/lib/azuro-chains';
 import { APP_CONFIG } from '@/lib/app-config';
 import { formatTokenAmount } from '@/lib/utils';
 import { useAccount, useBalance } from 'wagmi';
+import { sportIconAsset } from '@/lib/sport-icons';
 
 type TimeFilter = 'all' | 'today' | 'tomorrow' | '1h' | '3h' | '6h';
 
@@ -108,16 +109,6 @@ function extractCountryAndLeague(leagueName: string) {
     return { country: firstPart, league, flag: isoToFlag(iso) };
   }
   return { country: 'International', league: normalized, flag: '🌍' };
-}
-
-function sportIconAsset(name?: string) {
-  const value = (name ?? '').toLowerCase();
-  if (value.includes('football') || value.includes('soccer')) return '/icons/3d/football-3d.svg';
-  if (value.includes('basket')) return '/icons/3d/basketball-3d.svg';
-  if (value.includes('tennis')) return '/icons/3d/tennis-3d.svg';
-  if (value.includes('hockey')) return '/icons/3d/hockey-3d.svg';
-  if (value.includes('esport')) return '/icons/3d/esports-3d.svg';
-  return '/icons/3d/sport-3d.svg';
 }
 
 export default function MarketsPage() {
