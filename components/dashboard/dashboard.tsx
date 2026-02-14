@@ -118,77 +118,76 @@ export function Dashboard() {
             ))}
           </div>
         </div>
-        <Link href="/markets" className="mb-6 block overflow-hidden rounded-xl border border-border/70 bg-card/40">
-          <div className="relative min-h-[200px] sm:min-h-[260px] w-full">
-            <Image src="/banner1.png" alt="" fill className="object-cover object-center" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/80" />
-            <div className="absolute inset-0 flex flex-col justify-center p-4 sm:p-6">
-              <h1 className="text-2xl font-bold tracking-tight text-white drop-shadow-md sm:text-4xl">
-                GIBISBIG
-              </h1>
-              <p className="mt-1 max-w-md text-sm text-white/90 drop-shadow sm:text-base">
-                Decentralized sports and prediction market powered by Azuro.
-              </p>
-            </div>
-          </div>
-        </Link>
         <h2 id="dashboard-heading" className="sr-only">
           Dashboard
         </h2>
 
-        <div className="mb-6 lg:mb-8 relative overflow-hidden rounded-xl border border-border/70 bg-card/50">
-          <div className="absolute inset-0 opacity-[0.06] pointer-events-none">
-            <Image src="/logo.png" alt="" fill className="object-cover object-center" unoptimized />
-          </div>
-          <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-[0.05] pointer-events-none">
-            <Image src="/azuro.png" alt="" fill className="object-contain object-right" unoptimized />
-          </div>
-          <CardContent className="relative grid gap-2 p-3 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4 lg:gap-4 border-0 bg-transparent shadow-none">
-            <div className="rounded-md border border-border/60 bg-background/30 p-2.5">
-              <div className="flex items-center justify-between gap-1">
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Wallet</p>
-                <Wallet className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+        <div className="mb-6 lg:mb-8 overflow-hidden rounded-xl border border-border/70 bg-card/40">
+          <Link href="/markets" className="block">
+            <div className="relative min-h-[280px] sm:min-h-[360px] md:min-h-[400px] w-full bg-muted/30">
+              <Image src="/banner1.png" alt="" fill className="object-contain object-center" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+              <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6 pb-6 sm:pb-8">
+                <p className="max-w-2xl text-sm sm:text-base text-white/95 drop-shadow-md leading-relaxed">
+                  Onchain decentralized prediction and sports markets. Suitable for agentic interactions — super fast, self cashout, no bans, no limits, no KYC.
+                </p>
               </div>
-              <p className="text-sm font-semibold mt-0.5">
-                {balance?.rawBalance != null ? formatTokenAmount(balance.rawBalance as bigint, 18) : '—'}
-              </p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{gasTokenSymbol(chainId)} {nativeBalance?.rawBalance != null ? formatTokenAmount(nativeBalance.rawBalance as bigint, 18) : '—'}</p>
             </div>
-            <div className="rounded-md border border-border/60 bg-background/30 p-2.5">
-              <div className="flex items-center justify-between gap-1">
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Markets</p>
-                <Trophy className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
-              </div>
-              <p className="text-sm font-semibold mt-0.5">{games?.length ?? 0}</p>
-              <Link href="/markets">
-                <Button variant="link" className="p-0 h-auto text-primary text-[11px]">Browse all</Button>
-              </Link>
+          </Link>
+          <div className="relative overflow-hidden border-t border-border/60 bg-card/50">
+            <div className="absolute inset-0 opacity-[0.06] pointer-events-none">
+              <Image src="/logo.png" alt="" fill className="object-cover object-center" unoptimized />
             </div>
-            <div className="rounded-md border border-border/60 bg-background/30 p-2.5">
-              <div className="flex items-center justify-between gap-1">
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Active bets</p>
-                <Zap className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
-              </div>
-              <p className="text-sm font-semibold mt-0.5">{address ? activeBets.length : '—'}</p>
-              <Link href="/bets">
-                <Button variant="link" className="p-0 h-auto text-primary text-[11px]">Open activity</Button>
-              </Link>
+            <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-[0.05] pointer-events-none">
+              <Image src="/azuro.png" alt="" fill className="object-contain object-right" unoptimized />
             </div>
-            <div className="rounded-md border border-border/60 bg-background/30 p-2.5">
-              <div className="flex items-center justify-between gap-1">
-                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Settled</p>
-                <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+            <CardContent className="relative grid gap-2 p-3 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4 lg:gap-4 border-0 bg-transparent shadow-none">
+              <div className="rounded-md border border-border/60 bg-background/30 p-2.5">
+                <div className="flex items-center justify-between gap-1">
+                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Wallet</p>
+                  <Wallet className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+                </div>
+                <p className="text-sm font-semibold mt-0.5">
+                  {balance?.rawBalance != null ? formatTokenAmount(balance.rawBalance as bigint, 18) : '—'}
+                </p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{gasTokenSymbol(chainId)} {nativeBalance?.rawBalance != null ? formatTokenAmount(nativeBalance.rawBalance as bigint, 18) : '—'}</p>
               </div>
-              <p className="text-sm font-semibold mt-0.5">{address ? settledBets.length : '—'}</p>
-              {address ? (
-                <Link href="/history">
-                  <Button variant="link" className="p-0 h-auto text-primary text-[11px]">View history</Button>
+              <div className="rounded-md border border-border/60 bg-background/30 p-2.5">
+                <div className="flex items-center justify-between gap-1">
+                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Markets</p>
+                  <Trophy className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+                </div>
+                <p className="text-sm font-semibold mt-0.5">{games?.length ?? 0}</p>
+                <Link href="/markets">
+                  <Button variant="link" className="p-0 h-auto text-primary text-[11px]">Browse all</Button>
                 </Link>
-              ) : (
-                <p className="text-[10px] text-muted-foreground">Connect wallet</p>
-              )}
-            </div>
-          </CardContent>
+              </div>
+              <div className="rounded-md border border-border/60 bg-background/30 p-2.5">
+                <div className="flex items-center justify-between gap-1">
+                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Active bets</p>
+                  <Zap className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+                </div>
+                <p className="text-sm font-semibold mt-0.5">{address ? activeBets.length : '—'}</p>
+                <Link href="/bets">
+                  <Button variant="link" className="p-0 h-auto text-primary text-[11px]">Open activity</Button>
+                </Link>
+              </div>
+              <div className="rounded-md border border-border/60 bg-background/30 p-2.5">
+                <div className="flex items-center justify-between gap-1">
+                  <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Settled</p>
+                  <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+                </div>
+                <p className="text-sm font-semibold mt-0.5">{address ? settledBets.length : '—'}</p>
+                {address ? (
+                  <Link href="/history">
+                    <Button variant="link" className="p-0 h-auto text-primary text-[11px]">View history</Button>
+                  </Link>
+                ) : (
+                  <p className="text-[10px] text-muted-foreground">Connect wallet</p>
+                )}
+              </div>
+            </CardContent>
+          </div>
         </div>
         {betsRefreshing && address && (
           <p className="text-xs text-muted-foreground">Syncing your activity...</p>

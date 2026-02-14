@@ -136,6 +136,12 @@ export default function MarketsPage() {
     filter: { limit: 48, sportIds: sportId ? [sportId] : undefined },
     query: { enabled: isClient },
   });
+  const { data: liveGames } = useGames({
+    chainId,
+    isLive: true,
+    filter: { limit: 24, sportIds: sportId ? [sportId] : undefined },
+    query: { enabled: isClient },
+  });
   const { items, addItem, removeItem } = useBaseBetslip();
   const { address } = useAccount();
   const { data: balance } = useBetTokenBalance();
@@ -149,6 +155,34 @@ export default function MarketsPage() {
 
   const sports = nav ?? [];
   const q = searchQuery.trim().toLowerCase();
+
+  const filteredLiveGames = useMemo(() => {
+    if (!liveGames) return [];
+    let list = liveGames;
+    if (q) {
+      list = list.filter((g) => {
+        const title = (g as { title?: string }).title ?? '';
+        const sport = (g as { sport?: { name?: string } }).sport?.name ?? '';
+        const league = (g as { league?: { name?: string } }).league?.name ?? '';
+        const participants = (g as { participants?: Array<{ name?: string } | null> }).participants ?? [];
+        const names = participants.map((p) => p?.name ?? '').join(' ');
+        return `${title} ${sport} ${league} ${names}`.toLowerCase().includes(q);
+      });
+    }
+    if (leagueFilter) {
+      list = list.filter((g) => {
+        const league = (g as { league?: { name?: string } }).league?.name ?? '';
+        return league === leagueFilter;
+      });
+    }
+    if (countryFilter) {
+      list = list.filter((g) => {
+        const league = (g as { league?: { name?: string } }).league?.name ?? '';
+        return extractCountryAndLeague(league).country === countryFilter;
+      });
+    }
+    return list;
+  }, [liveGames, q, leagueFilter, countryFilter]);
 
   const filteredGames = useMemo(() => {
     if (!games) return [];
@@ -245,10 +279,12 @@ export default function MarketsPage() {
                 Live
               </Button>
             </Link>
-            <Button variant="ghost" size="sm" className="h-10 gap-2 flex-1 justify-start border border-border/60 bg-background/40" disabled>
-              <Clock className="h-4 w-4" />
-              Upcoming
-            </Button>
+            <Link href="#upcoming">
+              <Button variant="ghost" size="sm" className="h-10 gap-2 w-full justify-start border border-border/60 bg-background/40">
+                <Clock className="h-4 w-4" />
+                Upcoming
+              </Button>
+            </Link>
           </div>
           <nav className="space-y-0.5" aria-label="Sports">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground px-2 py-1">
@@ -463,7 +499,48 @@ export default function MarketsPage() {
             className="pointer-events-none absolute left-1/2 top-1/2 h-[70%] w-auto -translate-x-1/2 -translate-y-1/2 opacity-[0.06]"
           />
           <div className="relative grid gap-5 lg:grid-cols-3 lg:gap-8">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-8">
+            {/* Live section */}
+            <section aria-labelledby="live-heading">
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <h2 id="live-heading" className="text-lg font-semibold flex items-center gap-2">
+                  <span className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-80" />
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-accent" />
+                  </span>
+                  Live
+                </h2>
+                <Link href="/live">
+                  <Button variant="outline" size="sm">View all live</Button>
+                </Link>
+              </div>
+              {filteredLiveGames.length > 0 ? (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {filteredLiveGames.map((game) => (
+                    <MarketCard
+                      key={game.id}
+                      game={game}
+                      onAddSelection={addItem}
+                      onRemoveSelection={removeItem}
+                      selectedSelectionKeys={new Set(items.map((i) => selectionKey(i.conditionId, i.outcomeId)))}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <Card>
+                  <CardContent className="py-8 text-center text-muted-foreground text-sm">
+                    No live events match your filters. <Link href="/live" className="text-primary underline">View all live</Link>
+                  </CardContent>
+                </Card>
+              )}
+            </section>
+
+            {/* Upcoming section */}
+            <section id="upcoming" aria-labelledby="upcoming-heading" className="scroll-mt-4">
+              <h2 id="upcoming-heading" className="text-lg font-semibold flex items-center gap-2 mb-4">
+                <Clock className="h-5 w-5 text-muted-foreground" />
+                Upcoming
+              </h2>
             {isLoading ? (
               <div className="grid gap-4 sm:grid-cols-2">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -502,6 +579,7 @@ export default function MarketsPage() {
                 </CardContent>
               </Card>
             )}
+            </section>
           </div>
           <div className="lg:col-span-1">
             <BetSlip />
