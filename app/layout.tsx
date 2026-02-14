@@ -27,7 +27,7 @@ const inconsolata = Inconsolata({
 
 export const metadata: Metadata = {
   title: 'Gibisbig | Decentralized Betting on Azuro',
-  description: 'Bet on sports and prediction markets across Gnosis, Polygon, Chiliz, and Base with EVM wallets.',
+  description: 'Bet on sports markets across Gnosis, Polygon, Chiliz, and Base with EVM wallets.',
   icons: { icon: '/favicon.png', apple: '/favicon.png' },
 };
 

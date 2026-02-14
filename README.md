@@ -1,6 +1,6 @@
 # Gibisbig
 
-Production-ready super app for decentralized betting on the **Azuro Protocol**. Supports all Azuro chains (Gnosis, Polygon, Chiliz, Base), Solana wallet connection, and full SDK features: prematch/live markets, bet placement, cashout, freebets, wrap/unwrap, redeem winnings.
+Production-ready super app for decentralized betting on the **Azuro Protocol**. Supports all Azuro chains (Gnosis, Polygon, Chiliz, Base), Solana wallet connection, and full SDK features: prematch/live markets, bet placement, cashout, freebets, wrap/unwrap, and redeem winnings.
 
 ## Features
 
