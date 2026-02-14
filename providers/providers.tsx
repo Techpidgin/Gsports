@@ -5,7 +5,6 @@ import { WagmiProvider } from 'wagmi';
 import { AzuroSDKProvider } from '@azuro-org/sdk';
 import { wagmiConfig } from '@/lib/wagmi-config';
 import { DEFAULT_CHAIN_ID } from '@/lib/azuro-chains';
-import { SolanaWalletProvider } from './solana-wallet-provider';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,7 +17,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
         <AzuroSDKProvider initialChainId={DEFAULT_CHAIN_ID as 100 | 137 | 80002 | 88888 | 88882 | 8453 | 84532}>
-          <SolanaWalletProvider>{children}</SolanaWalletProvider>
+          {children}
         </AzuroSDKProvider>
       </QueryClientProvider>
     </WagmiProvider>

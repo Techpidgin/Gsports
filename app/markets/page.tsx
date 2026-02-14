@@ -212,12 +212,12 @@ export default function MarketsPage() {
   }, [sports, sportId]);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6">
-      <aside className="lg:w-64 shrink-0 rounded-xl border border-border/80 bg-card/60 p-3 lg:sticky lg:top-24 lg:self-start">
+    <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
+      <aside className="lg:w-64 shrink-0 rounded-2xl border border-border/80 bg-card/60 p-2.5 sm:p-3 lg:sticky lg:top-24 lg:self-start">
         <div className="space-y-4">
           <div className="flex gap-2">
             <Link href="/live">
-              <Button variant="ghost" size="sm" className="gap-2 w-full justify-start border border-border/60 bg-background/40">
+              <Button variant="ghost" size="sm" className="h-10 gap-2 w-full justify-start border border-border/60 bg-background/40">
                 <span className="relative flex h-3.5 w-3.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-80" />
                   <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-accent" />
@@ -225,7 +225,7 @@ export default function MarketsPage() {
                 Live
               </Button>
             </Link>
-            <Button variant="ghost" size="sm" className="gap-2 flex-1 justify-start border border-border/60 bg-background/40" disabled>
+            <Button variant="ghost" size="sm" className="h-10 gap-2 flex-1 justify-start border border-border/60 bg-background/40" disabled>
               <Clock className="h-4 w-4" />
               Upcoming
             </Button>
@@ -238,7 +238,7 @@ export default function MarketsPage() {
               variant="ghost"
               size="sm"
               className={cn(
-                'w-full justify-between font-normal border border-transparent hover:border-border/70',
+                'h-10 w-full justify-between font-normal border border-transparent hover:border-border/70',
                 sportId === undefined && 'bg-muted border-border/70'
               )}
               onClick={() => {
@@ -262,7 +262,7 @@ export default function MarketsPage() {
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    'w-full justify-between font-normal border border-transparent hover:border-border/70',
+                    'h-10 w-full justify-between font-normal border border-transparent hover:border-border/70',
                     sportId === s?.id && 'bg-muted border-border/70'
                   )}
                   onClick={() => {
@@ -302,7 +302,7 @@ export default function MarketsPage() {
                     variant="ghost"
                     size="sm"
                     className={cn(
-                      'mb-1 h-7 w-full justify-between px-1.5 text-xs',
+                      'mb-1 h-8 w-full justify-between px-1.5 text-xs',
                       countryFilter === group.country && 'text-primary'
                     )}
                     onClick={() => {
@@ -357,11 +357,11 @@ export default function MarketsPage() {
             placeholder="Search sport, league, event or team"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
+            className="h-11 pl-9"
             aria-label="Search markets"
           />
         </div>
-        <div className="relative overflow-hidden rounded-xl border border-border/80 bg-card/50 p-4">
+        <div className="relative overflow-hidden rounded-xl border border-border/80 bg-card/50 p-3.5 sm:p-4">
           <Image
             src="/logo.png"
             alt=""
@@ -375,12 +375,13 @@ export default function MarketsPage() {
             <br />
             {APP_CONFIG.promoSecondary}.
           </p>
-          <div className="flex flex-wrap gap-2 mt-2">
+          <div className="mt-2 flex flex-wrap gap-2">
             {TIME_FILTERS.map((f) => (
               <Button
                 key={f.value}
                 variant={timeFilter === f.value ? 'secondary' : 'outline'}
                 size="sm"
+                className="h-9 min-w-[54px]"
                 onClick={() => setTimeFilter(f.value)}
               >
                 {f.label}
@@ -407,7 +408,7 @@ export default function MarketsPage() {
             ))}
           </div>
         </section>
-        <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/40 p-4">
+        <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/40 p-3 sm:p-4">
           <Image
             src="/logo.png"
             alt=""
@@ -415,7 +416,7 @@ export default function MarketsPage() {
             height={1200}
             className="pointer-events-none absolute left-1/2 top-1/2 h-[70%] w-auto -translate-x-1/2 -translate-y-1/2 opacity-[0.06]"
           />
-          <div className="grid lg:grid-cols-3 gap-8 relative">
+          <div className="relative grid gap-5 lg:grid-cols-3 lg:gap-8">
           <div className="lg:col-span-2">
             {isLoading ? (
               <div className="grid gap-4 sm:grid-cols-2">
@@ -450,7 +451,7 @@ export default function MarketsPage() {
               <Card>
                 <CardContent className="py-12 text-center text-muted-foreground">
                   {games?.length === 0
-                    ? `No events on chain ${chainId}. Pick a chain in the header (e.g. Polygon 137 or Polygon Amoy 80002) and ensure /api/subgraph returns OK.`
+                    ? `No events on chain ${chainId}. Pick a chain in the header (e.g. Polygon 137, Gnosis 100, or Base 8453) and ensure /api/subgraph returns OK.`
                     : 'No events match your search or time filter.'}
                 </CardContent>
               </Card>

@@ -52,7 +52,7 @@ export function Dashboard() {
   });
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <section aria-labelledby="dashboard-heading">
         <div className="mb-4 overflow-hidden rounded-xl border border-border/70 bg-background/35">
           <div className="marquee-track py-3">
@@ -99,14 +99,14 @@ export function Dashboard() {
             ))}
           </div>
         </div>
-        <h1 id="dashboard-heading" className="text-3xl font-bold mb-2">
+        <h1 id="dashboard-heading" className="mb-2 text-2xl font-bold sm:text-3xl">
           Gibisbig
         </h1>
         <p className="text-muted-foreground mb-2">
           Decentralized betting on Azuro. Markets run on <strong>EVM chains only</strong>: Polygon, Gnosis, Chiliz, Base.
         </p>
         <p className="text-sm text-muted-foreground mb-6">
-          Connect your <strong>EVM wallet</strong> (MetaMask, etc.) and pick a chain in the header to see games. Solana wallet is optional for future features; Azuro does not run on Solana.
+          Connect your <strong>EVM wallet</strong> (MetaMask, etc.) and pick a chain in the header to see games across Azuro-supported networks.
         </p>
         <div className="mb-4 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
           <span className="rounded-full border border-border/70 px-2 py-0.5">Promo: {APP_CONFIG.promoCampaignId}</span>
@@ -122,7 +122,7 @@ export function Dashboard() {
           )}
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+        <div className="mb-6 grid gap-3 sm:gap-4 md:grid-cols-2 lg:mb-8 lg:grid-cols-4">
           <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Wallet assets</CardTitle>
@@ -201,8 +201,8 @@ export function Dashboard() {
         )}
       </section>
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-4">
+      <div className="grid gap-5 lg:grid-cols-3 lg:gap-8">
+        <div className="space-y-4 lg:col-span-2">
           <h2 className="text-xl font-semibold">Top markets</h2>
           {isLoading ? (
             <div className="grid gap-4 sm:grid-cols-2">
@@ -251,7 +251,7 @@ export function Dashboard() {
           {!isLoading && isSuccess && (!games || games.length === 0) && (
             <Card>
               <CardContent className="py-12 text-center text-muted-foreground">
-                No games on this chain. Switch chain (e.g. Polygon Amoy) for testnet markets.
+                No games on this chain. Switch chain (e.g. Polygon 137, Gnosis 100, or Base 8453) for active markets.
               </CardContent>
             </Card>
           )}

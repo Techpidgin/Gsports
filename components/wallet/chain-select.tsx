@@ -12,9 +12,10 @@ import {
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown, Check } from 'lucide-react';
-import { AZURO_CHAIN_NAMES, DEFAULT_CHAIN_ID, SUPPORTED_CHAIN_IDS } from '@/lib/azuro-chains';
+import { AZURO_CHAIN_NAMES, DEFAULT_CHAIN_ID, MAINNET_CHAIN_IDS } from '@/lib/azuro-chains';
+import { cn } from '@/lib/utils';
 
-export function ChainSelect() {
+export function ChainSelect({ className }: { className?: string }) {
   const chain = useChain();
   const chainId = chain?.appChain?.id ?? DEFAULT_CHAIN_ID;
   const setChainId = chain.setAppChainId;
@@ -32,14 +33,14 @@ export function ChainSelect() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2 min-w-[140px]" disabled={isPending}>
+        <Button variant="outline" size="sm" className={cn('h-11 gap-2 min-w-[140px]', className)} disabled={isPending}>
           {AZURO_CHAIN_NAMES[chainId] ?? `Chain ${chainId}`}
           <ChevronDown className="h-4 w-4 opacity-50" aria-hidden />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-56">
         <DropdownMenuLabel>Azuro network</DropdownMenuLabel>
-        {SUPPORTED_CHAIN_IDS.map((id) => (
+        {MAINNET_CHAIN_IDS.map((id) => (
           <DropdownMenuItem key={id} onClick={() => handleSelect(id as ChainId)}>
             <span className="flex-1">{AZURO_CHAIN_NAMES[id]}</span>
             {chainId === id && <Check className="h-4 w-4" />}

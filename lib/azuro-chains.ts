@@ -29,3 +29,9 @@ export const AZURO_CHAIN_NAMES: Record<number, string> = {
 export const DEFAULT_CHAIN_ID = AZURO_CHAIN_IDS.Polygon;
 
 export const SUPPORTED_CHAIN_IDS: number[] = Object.values(AZURO_CHAIN_IDS);
+export const MAINNET_CHAIN_IDS: number[] = [
+  AZURO_CHAIN_IDS.Gnosis,
+  AZURO_CHAIN_IDS.Polygon,
+  AZURO_CHAIN_IDS.Chiliz,
+  AZURO_CHAIN_IDS.Base,
+];

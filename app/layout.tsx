@@ -27,7 +27,7 @@ const inconsolata = Inconsolata({
 
 export const metadata: Metadata = {
   title: 'Gibisbig | Decentralized Betting on Azuro',
-  description: 'Bet on sports and prediction markets across Gnosis, Polygon, Chiliz, and Base. Solana & EVM wallets supported.',
+  description: 'Bet on sports and prediction markets across Gnosis, Polygon, Chiliz, and Base with EVM wallets.',
   icons: { icon: '/favicon.png', apple: '/favicon.png' },
 };
 
@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       >
         <Providers>
           <Header />
-          <main className="container mx-auto px-4 py-6 max-w-7xl">{children}</main>
+          <main className="container mx-auto max-w-7xl px-3 py-4 pb-24 sm:px-4 sm:py-6 sm:pb-6">{children}</main>
           <Toaster position="top-right" richColors closeButton />
         </Providers>
       </body>

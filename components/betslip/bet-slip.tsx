@@ -113,7 +113,7 @@ export function BetSlip() {
   const ticketRef = items.length > 0 ? `#${items[0].conditionId.slice(0, 4)}${items.length}${items[items.length - 1].outcomeId.slice(-3)}` : '#----';
 
   return (
-    <Card className="sticky top-24 overflow-hidden border-primary/30 bg-card/95">
+    <Card className="overflow-hidden border-primary/30 bg-card/95 lg:sticky lg:top-24">
       <div className="pointer-events-none absolute inset-y-0 left-0 flex flex-col justify-around">
         {[...Array(9)].map((_, i) => (
           <span key={`left-${i}`} className="h-3 w-3 -translate-x-1/2 rounded-full bg-background" />
