@@ -3,14 +3,14 @@
 import { useGames, useBaseBetslip, useBetTokenBalance, useChain, useNativeBalance } from '@azuro-org/sdk';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MarketCard, selectionKey } from '@/components/market/market-card';
 import { BetSlip } from '@/components/betslip/bet-slip';
 import { LiveGameOdds } from '@/components/dashboard/live-game-odds';
 import { Trophy, Zap, Wallet, TrendingUp } from 'lucide-react';
-import { formatTokenAmount } from '@/lib/utils';
+import { formatTokenAmount, cn } from '@/lib/utils';
 import { useIsClient } from '@/lib/use-is-client';
 import { DEFAULT_CHAIN_ID } from '@/lib/azuro-chains';
 import { useUserBets } from '@/lib/use-user-bets';
@@ -39,6 +39,41 @@ function gasTokenSymbol(chainId: number) {
   if (chainId === 8453 || chainId === 84532) return 'ETH';
   if (chainId === 88888 || chainId === 88882) return 'CHZ';
   return 'Gas';
+}
+
+const BANNER_SLIDES = ['/banner1.png', '/banner2.png'] as const;
+const SLIDE_INTERVAL_MS = 6000;
+
+function BannerSlideshow() {
+  const [index, setIndex] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => {
+      setIndex((i) => (i + 1) % BANNER_SLIDES.length);
+    }, SLIDE_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <div className="relative min-h-[280px] sm:min-h-[360px] md:min-h-[400px] w-full bg-muted/30">
+      {BANNER_SLIDES.map((src, i) => (
+        <Image
+          key={src}
+          src={src}
+          alt=""
+          fill
+          className={cn(
+            'object-cover object-top transition-opacity duration-700',
+            i === index ? 'opacity-100 z-10' : 'opacity-0 z-0'
+          )}
+        />
+      ))}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6 pb-6 sm:pb-8 pointer-events-none">
+        <p className="max-w-3xl text-base sm:text-lg md:text-xl text-white/95 drop-shadow-md leading-relaxed">
+          Onchain decentralized prediction and sports markets. Suitable for agentic interactions — super fast, self cashout, no bans, no limits, no KYC.
+        </p>
+      </div>
+    </div>
+  );
 }
 
 export function Dashboard() {
@@ -124,15 +159,7 @@ export function Dashboard() {
 
         <div className="mb-6 lg:mb-8 overflow-hidden rounded-xl border border-border/70 bg-card/40">
           <Link href="/markets" className="block">
-            <div className="relative min-h-[280px] sm:min-h-[360px] md:min-h-[400px] w-full bg-muted/30">
-              <Image src="/banner1.png" alt="" fill className="object-cover object-[center_35%]" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-              <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6 pb-6 sm:pb-8">
-                <p className="max-w-3xl text-base sm:text-lg md:text-xl text-white/95 drop-shadow-md leading-relaxed">
-                  Onchain decentralized prediction and sports markets. Suitable for agentic interactions — super fast, self cashout, no bans, no limits, no KYC.
-                </p>
-              </div>
-            </div>
+            <BannerSlideshow />
           </Link>
           <div className="relative overflow-hidden border-t border-border/60 bg-card/50">
             <div className="absolute inset-0 opacity-[0.06] pointer-events-none">
