@@ -2,15 +2,19 @@
 
 import { useBaseBetslip, useDetailedBetslip, useBet, useBetFee, useMaxBet, useBetTokenBalance, useGame, useConditions, useChain, useNativeBalance } from '@azuro-org/sdk';
 import { useAccount, useBalance } from 'wagmi';
-import { useCallback } from 'react';
+import { useCallback, useRef, useEffect, Fragment } from 'react';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, Loader2 } from 'lucide-react';
+import { Trash2, Loader2, ArrowUp, ArrowDown } from 'lucide-react';
 import { formatOdds, formatTokenAmount } from '@/lib/utils';
 import { getConditionMarketName, getOutcomeDisplayLabel } from '@/lib/outcome-labels';
 import { APP_CONFIG } from '@/lib/app-config';
+
+function selectionKey(conditionId: string, outcomeId: string) {
+  return `${conditionId}-${outcomeId}`;
+}
 
 type TicketItem = {
   outcomeId: string;
@@ -44,10 +48,12 @@ function formatTinyDate(unix: string | null | undefined) {
 function TicketSelectionRow({
   item,
   oddLabel,
+  oddsDirection,
   onRemove,
 }: {
   item: TicketItem;
   oddLabel: string;
+  oddsDirection: 'up' | 'down' | null;
   onRemove: () => void;
 }) {
   const { data: game } = useGame({ gameId: item.gameId });
@@ -76,7 +82,12 @@ function TicketSelectionRow({
     <li className="rounded-md border border-border/60 bg-background/40 p-2 text-sm">
       <div className="flex items-center justify-between gap-2">
         <span className="truncate font-medium">{home} vs {away}</span>
-        <span className="ibm-plex-mono-medium text-muted-foreground">{oddLabel}</span>
+        <span className="flex items-center gap-1 ibm-plex-mono-medium">
+          <span className="text-muted-foreground">Odds</span>
+          <span className="font-semibold text-foreground tabular-nums">{oddLabel}</span>
+          {oddsDirection === 'up' && <ArrowUp className="h-3.5 w-3.5 shrink-0 text-green-500" aria-label="Odds increased" />}
+          {oddsDirection === 'down' && <ArrowDown className="h-3.5 w-3.5 shrink-0 text-red-500" aria-label="Odds decreased" />}
+        </span>
       </div>
       <div className="mt-1 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
         <span className="truncate">{marketName ? `${marketName}: ${outcomeName}` : outcomeName}</span>
@@ -92,12 +103,24 @@ function TicketSelectionRow({
   );
 }
 
+/** Group slip items by gameId for separators; returns array of { gameId, items } */
+function groupItemsByGame(items: TicketItem[]) {
+  const map = new Map<string, TicketItem[]>();
+  for (const item of items) {
+    const list = map.get(item.gameId) ?? [];
+    list.push(item);
+    map.set(item.gameId, list);
+  }
+  return Array.from(map.entries()).map(([gameId, list]) => ({ gameId, items: list }));
+}
+
 export function BetSlip() {
   const { address } = useAccount();
   const chain = useChain();
   const chainId = chain?.appChain?.id;
   const { items, removeItem, clear } = useBaseBetslip();
   const { betAmount, changeBetAmount, totalOdds, odds } = useDetailedBetslip();
+  const prevOddsRef = useRef<Map<string, number>>(new Map());
   const { data: fee } = useBetFee();
   const { data: maxBet } = useMaxBet({ selections: items });
   const { data: balance } = useBetTokenBalance();
@@ -130,6 +153,31 @@ export function BetSlip() {
   const nativeBalanceFormatted = nativeBalance?.rawBalance != null ? formatTokenAmount(nativeBalance.rawBalance as bigint, 18) : '0';
   const isPending = betTxState?.isPending ?? betTxState?.isProcessing ?? false;
   const ticketRef = items.length > 0 ? `#${items[0].conditionId.slice(0, 4)}${items.length}${items[items.length - 1].outcomeId.slice(-3)}` : '#----';
+
+  const oddsRecord = odds ?? {};
+  const getCurrentOdd = useCallback((item: TicketItem) => {
+    const key = selectionKey(item.conditionId, item.outcomeId);
+    const v = oddsRecord[key] ?? oddsRecord[item.outcomeId];
+    return typeof v === 'number' ? v : null;
+  }, [oddsRecord]);
+  const getOddsDirection = useCallback((item: TicketItem): 'up' | 'down' | null => {
+    const current = getCurrentOdd(item);
+    if (current == null) return null;
+    const key = selectionKey(item.conditionId, item.outcomeId);
+    const prev = prevOddsRef.current.get(key);
+    if (prev == null) return null;
+    if (current > prev) return 'up';
+    if (current < prev) return 'down';
+    return null;
+  }, [getCurrentOdd]);
+  useEffect(() => {
+    items.forEach((item) => {
+      const current = getCurrentOdd(item as TicketItem);
+      if (current != null) prevOddsRef.current.set(selectionKey(item.conditionId, item.outcomeId), current);
+    });
+  }, [items, getCurrentOdd]);
+
+  const groups = groupItemsByGame(items as TicketItem[]);
 
   return (
     <Card className="overflow-hidden border-primary/30 bg-card/95 lg:sticky lg:top-24">
@@ -168,13 +216,23 @@ export function BetSlip() {
         ) : (
           <>
             <ul className="space-y-2" aria-label="Selections">
-              {items.map((item) => (
-                <TicketSelectionRow
-                  key={`${item.conditionId}-${item.outcomeId}`}
-                  item={item as TicketItem}
-                  oddLabel={odds?.[item.outcomeId] != null ? formatOdds(odds[item.outcomeId]) : '—'}
-                  onRemove={() => removeItem({ outcomeId: item.outcomeId, conditionId: item.conditionId })}
-                />
+              {groups.map((group, groupIdx) => (
+                <Fragment key={group.gameId}>
+                  {groupIdx > 0 && (
+                    <li className="py-1 list-none" aria-hidden>
+                      <hr className="border-border/80" />
+                    </li>
+                  )}
+                  {group.items.map((item) => (
+                    <TicketSelectionRow
+                      key={`${item.conditionId}-${item.outcomeId}`}
+                      item={item}
+                      oddLabel={getCurrentOdd(item) != null ? formatOdds(getCurrentOdd(item)!) : '—'}
+                      oddsDirection={getOddsDirection(item)}
+                      onRemove={() => removeItem({ outcomeId: item.outcomeId, conditionId: item.conditionId })}
+                    />
+                  ))}
+                </Fragment>
               ))}
             </ul>
             <div className="space-y-1 rounded-md border border-dashed border-border/70 bg-background/30 p-2">

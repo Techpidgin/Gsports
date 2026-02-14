@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { formatOdds, parseOdds } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { getOutcomeDisplayLabel, getConditionMarketName, isFullTimeResultStyle } from '@/lib/outcome-labels';
@@ -19,11 +20,17 @@ type Game = {
   startsAt?: string | null;
 };
 
+/** Key per selection so same outcomeId in different games don't cross-highlight */
+export function selectionKey(conditionId: string, outcomeId: string) {
+  return `${conditionId}-${outcomeId}`;
+}
+
 type MarketCardProps = {
   game: Game;
   onAddSelection: (item: { outcomeId: string; conditionId: string; gameId: string; isExpressForbidden: boolean }) => void;
   onRemoveSelection: (selection: { outcomeId: string; conditionId: string }) => void;
-  selectedOutcomeIds: string[];
+  /** Set of selection keys (conditionId-outcomeId) so only the exact pick is highlighted */
+  selectedSelectionKeys: Set<string>;
 };
 
 function TeamBadge({ src, alt }: { src?: string | null; alt: string }) {
@@ -64,7 +71,7 @@ function ClashPanel({ src, side }: { src?: string | null; side: 'left' | 'right'
   );
 }
 
-export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOutcomeIds }: MarketCardProps) {
+export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedSelectionKeys }: MarketCardProps) {
   const { data: conditions, isLoading: conditionsLoading } = useConditions({ gameId: game.id });
   const [showMoreOptions, setShowMoreOptions] = useState(false);
 
@@ -143,7 +150,7 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOu
                             if (!outcome) return null;
                             const rawOdds = (outcome as { odds?: string | number })?.odds;
                             const value = parseOdds(rawOdds);
-                            const isSelected = selectedOutcomeIds.includes(outcome.outcomeId);
+                            const isSelected = selectedSelectionKeys.has(selectionKey(condition.id, outcome.outcomeId));
                             const selection = { outcomeId: outcome.outcomeId, conditionId: condition.id };
                             return (
                               <Button
@@ -174,7 +181,7 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOu
                         {outcomes.map((outcome, idx) => {
                           const rawOdds = (outcome as { odds?: string | number })?.odds;
                           const value = parseOdds(rawOdds);
-                          const isSelected = selectedOutcomeIds.includes(outcome.outcomeId);
+                          const isSelected = selectedSelectionKeys.has(selectionKey(condition.id, outcome.outcomeId));
                           const selection = { outcomeId: outcome.outcomeId, conditionId: condition.id };
                           const displayLabel = getOutcomeDisplayLabel({
                             outcomeId: String(outcome.outcomeId),
@@ -207,18 +214,20 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOu
                 );
               })}
               {hasMoreOptions && (
-                <div className="space-y-2">
+                <Dialog open={showMoreOptions} onOpenChange={setShowMoreOptions}>
                   <Button
                     variant="outline"
                     size="sm"
                     className="h-9 w-full border-border/70 bg-background/50 text-xs uppercase tracking-wide hover:border-primary/55"
-                    onClick={() => setShowMoreOptions((prev) => !prev)}
-                    aria-expanded={showMoreOptions}
+                    onClick={() => setShowMoreOptions(true)}
                   >
-                    {showMoreOptions ? 'Hide options' : `More options (${extraConditions.length})`}
+                    More options ({extraConditions.length})
                   </Button>
-                  {showMoreOptions && (
-                    <div className="space-y-3 rounded-md border border-border/60 bg-background/30 p-2">
+                  <DialogContent className="max-h-[85vh] overflow-hidden flex flex-col">
+                    <DialogHeader>
+                      <DialogTitle>{home} vs {away}</DialogTitle>
+                    </DialogHeader>
+                    <div className="overflow-y-auto space-y-3 pr-2 -mr-2">
                       {extraConditions.map((condition) => {
                         const outcomes = condition.outcomes ?? [];
                         const firstOutcomeId = outcomes[0] ? String(outcomes[0].outcomeId) : '';
@@ -226,7 +235,7 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOu
                         const show1X2 = isFullTimeResultStyle(outcomes.length, marketName);
 
                         return (
-                          <div key={condition.id} className="space-y-1.5">
+                          <div key={condition.id} className="space-y-1.5 rounded-md border border-border/60 bg-background/30 p-2">
                             {marketName && !show1X2 && (
                               <p className="text-xs font-medium text-muted-foreground">{marketName}</p>
                             )}
@@ -239,7 +248,7 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOu
                                     if (!outcome) return null;
                                     const rawOdds = (outcome as { odds?: string | number })?.odds;
                                     const value = parseOdds(rawOdds);
-                                    const isSelected = selectedOutcomeIds.includes(outcome.outcomeId);
+                                    const isSelected = selectedSelectionKeys.has(selectionKey(condition.id, outcome.outcomeId));
                                     const selection = { outcomeId: outcome.outcomeId, conditionId: condition.id };
                                     return (
                                       <Button
@@ -256,7 +265,7 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOu
                                             : onAddSelection({ ...selection, gameId: game.id, isExpressForbidden: false })
                                         }
                                         aria-pressed={isSelected}
-                                        aria-label={`${label} ${label === '1' ? 'Home win' : label === 'X' ? 'Draw' : 'Away win'} ${formatOdds(value)}`}
+                                        aria-label={`${label} ${formatOdds(value)}`}
                                       >
                                         <span className="text-sm font-semibold">{label}</span>
                                         <span className="text-xs tabular-nums opacity-90">{formatOdds(value)}</span>
@@ -270,7 +279,7 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOu
                                 {outcomes.map((outcome, idx) => {
                                   const rawOdds = (outcome as { odds?: string | number })?.odds;
                                   const value = parseOdds(rawOdds);
-                                  const isSelected = selectedOutcomeIds.includes(outcome.outcomeId);
+                                  const isSelected = selectedSelectionKeys.has(selectionKey(condition.id, outcome.outcomeId));
                                   const selection = { outcomeId: outcome.outcomeId, conditionId: condition.id };
                                   const displayLabel = getOutcomeDisplayLabel({
                                     outcomeId: String(outcome.outcomeId),
@@ -303,8 +312,8 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOu
                         );
                       })}
                     </div>
-                  )}
-                </div>
+                  </DialogContent>
+                </Dialog>
               )}
             </div>
           )}

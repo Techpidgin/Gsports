@@ -2,7 +2,7 @@
 
 import { useGames, useBaseBetslip, useChain } from '@azuro-org/sdk';
 import { Card, CardContent } from '@/components/ui/card';
-import { MarketCard } from '@/components/market/market-card';
+import { MarketCard, selectionKey } from '@/components/market/market-card';
 import { BetSlip } from '@/components/betslip/bet-slip';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -42,7 +42,7 @@ export default function LivePage() {
                   game={game}
                   onAddSelection={addItem}
                   onRemoveSelection={removeItem}
-                  selectedOutcomeIds={items.map((o) => o.outcomeId)}
+                  selectedSelectionKeys={new Set(items.map((i) => selectionKey(i.conditionId, i.outcomeId)))}
                 />
               ))}
             </div>

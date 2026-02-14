@@ -3,17 +3,33 @@
 import { useGames, useBaseBetslip, useBetTokenBalance, useChain, useNativeBalance } from '@azuro-org/sdk';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MarketCard } from '@/components/market/market-card';
+import { MarketCard, selectionKey } from '@/components/market/market-card';
 import { BetSlip } from '@/components/betslip/bet-slip';
+import { LiveGameOdds } from '@/components/dashboard/live-game-odds';
 import { Trophy, Zap, Wallet, TrendingUp } from 'lucide-react';
 import { formatTokenAmount } from '@/lib/utils';
 import { useIsClient } from '@/lib/use-is-client';
 import { DEFAULT_CHAIN_ID } from '@/lib/azuro-chains';
 import { useUserBets } from '@/lib/use-user-bets';
-import { APP_CONFIG, ZERO_ADDRESS } from '@/lib/app-config';
 import { useBalance } from 'wagmi';
+
+function LiveStripImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
+  const [useFallback, setUseFallback] = useState(false);
+  const imgSrc = useFallback || !src ? '/logo.png' : src;
+  return (
+    <Image
+      src={imgSrc}
+      alt={alt}
+      fill
+      className={className}
+      unoptimized
+      onError={() => setUseFallback(true)}
+    />
+  );
+}
 
 const POLYGON_USDT = '0xc2132D05D31c914a87C6611C10748AEb04B58e8F' as const;
 
@@ -65,31 +81,34 @@ export function Dashboard() {
                     const participants = (g as { participants?: Array<{ name?: string; image?: string | null } | null> }).participants ?? [];
                     const home = participants[0]?.name ?? 'Home';
                     const away = participants[1]?.name ?? 'Away';
-                    const homeImg = participants[0]?.image ?? '/logo.png';
-                    const awayImg = participants[1]?.image ?? '/logo.png';
+                    const homeImg = participants[0]?.image ?? null;
+                    const awayImg = participants[1]?.image ?? null;
                     return (
                       <Link
                         href="/live"
                         key={`${loop}-${g.id}`}
-                        className="relative flex h-12 min-w-[220px] items-center overflow-hidden rounded-md border border-border/70 bg-card/50 pr-2 transition hover:border-primary/50 hover:bg-card/70"
+                        className="relative flex h-12 min-w-[260px] items-center overflow-hidden rounded-md border border-border/70 bg-card/50 pl-2 pr-2 transition hover:border-primary/50 hover:bg-card/70"
                         title={`Open live markets for ${home} vs ${away}`}
                       >
                         <div className="absolute inset-0 grid grid-cols-2 opacity-35">
                           <div className="relative">
-                            <Image src={homeImg} alt="" fill className="object-cover" unoptimized />
+                            <LiveStripImage src={homeImg ?? ''} alt={home} className="object-cover" />
                             <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/20 to-transparent" />
                           </div>
                           <div className="relative">
-                            <Image src={awayImg} alt="" fill className="object-cover" unoptimized />
+                            <LiveStripImage src={awayImg ?? ''} alt={away} className="object-cover" />
                             <div className="absolute inset-0 bg-gradient-to-l from-black/75 via-black/20 to-transparent" />
                           </div>
                         </div>
-                        <div className="relative z-10 flex items-center gap-2 px-2 text-xs">
-                          <span className="relative flex h-4 w-4">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-80" />
-                            <span className="relative inline-flex h-4 w-4 rounded-full bg-accent" />
-                          </span>
-                          <span className="font-medium">{home} vs {away}</span>
+                        <div className="relative z-10 flex w-full items-center justify-between gap-2 text-xs">
+                          <div className="flex min-w-0 items-center gap-2">
+                            <span className="relative flex h-4 w-4 shrink-0">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-80" />
+                              <span className="relative inline-flex h-4 w-4 rounded-full bg-accent" />
+                            </span>
+                            <span className="truncate font-medium">{home} vs {away}</span>
+                          </div>
+                          <LiveGameOdds gameId={g.id} />
                         </div>
                       </Link>
                     );
@@ -99,40 +118,23 @@ export function Dashboard() {
             ))}
           </div>
         </div>
-        <Link href="/markets" className="mb-4 block overflow-hidden rounded-xl border border-border/70 bg-card/40">
-          <div className="relative h-28 sm:h-36">
-            <Image src="/banner1.png" alt="Gibisbig featured markets" fill className="object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-black/70" />
-            <div className="relative z-10 flex h-full items-end p-3 sm:p-4">
-              <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-primary">Featured</p>
-                <p className="text-sm font-semibold sm:text-base">Open today&apos;s best markets and hot odds</p>
-              </div>
+        <Link href="/markets" className="mb-6 block overflow-hidden rounded-xl border border-border/70 bg-card/40">
+          <div className="relative min-h-[200px] sm:min-h-[260px] w-full">
+            <Image src="/banner1.png" alt="" fill className="object-cover object-center" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/80" />
+            <div className="absolute inset-0 flex flex-col justify-center p-4 sm:p-6">
+              <h1 className="text-2xl font-bold tracking-tight text-white drop-shadow-md sm:text-4xl">
+                GIBISBIG
+              </h1>
+              <p className="mt-1 max-w-md text-sm text-white/90 drop-shadow sm:text-base">
+                Decentralized sports and prediction market powered by Azuro.
+              </p>
             </div>
           </div>
         </Link>
-        <h1 id="dashboard-heading" className="mb-2 text-2xl font-bold sm:text-3xl">
-          Gibisbig
-        </h1>
-        <p className="text-muted-foreground mb-2">
-          Decentralized betting on Azuro. Markets run on <strong>EVM chains only</strong>: Polygon, Gnosis, Chiliz, Base.
-        </p>
-        <p className="text-sm text-muted-foreground mb-6">
-          Connect your <strong>EVM wallet</strong> (MetaMask, etc.) and pick a chain in the header to see games across Azuro-supported networks.
-        </p>
-        <div className="mb-4 flex flex-wrap gap-2 text-[11px] text-muted-foreground">
-          <span className="rounded-full border border-border/70 px-2 py-0.5">Promo: {APP_CONFIG.promoCampaignId}</span>
-          {APP_CONFIG.ownerAddress !== ZERO_ADDRESS && (
-            <span className="rounded-full border border-border/70 px-2 py-0.5">
-              Owner: {APP_CONFIG.ownerAddress.slice(0, 8)}...{APP_CONFIG.ownerAddress.slice(-4)}
-            </span>
-          )}
-          {APP_CONFIG.treasuryAddress !== ZERO_ADDRESS && (
-            <span className="rounded-full border border-border/70 px-2 py-0.5">
-              Treasury: {APP_CONFIG.treasuryAddress.slice(0, 8)}...{APP_CONFIG.treasuryAddress.slice(-4)}
-            </span>
-          )}
-        </div>
+        <h2 id="dashboard-heading" className="sr-only">
+          Dashboard
+        </h2>
 
         <div className="mb-6 grid gap-3 sm:gap-4 md:grid-cols-2 lg:mb-8 lg:grid-cols-4">
           <Card>
@@ -237,7 +239,7 @@ export function Dashboard() {
                   game={game}
                   onAddSelection={addItem}
                   onRemoveSelection={removeItem}
-                  selectedOutcomeIds={items.map((o) => o.outcomeId)}
+                  selectedSelectionKeys={new Set(items.map((i) => selectionKey(i.conditionId, i.outcomeId)))}
                 />
               ))}
             </div>
