@@ -23,14 +23,14 @@ export function Footer() {
           </div>
           <div className="space-y-2">
             <p className="text-sm font-semibold">Community</p>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <a
                 href={TELEGRAM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-muted-foreground underline hover:text-foreground"
               >
-                Telegram
+                Telegram — GIB CASINO
               </a>
               <a
                 href={TWITTER_X_URL}
@@ -38,9 +38,14 @@ export function Footer() {
                 rel="noopener noreferrer"
                 className="text-xs text-muted-foreground underline hover:text-foreground"
               >
-                X (Twitter)
+                X — @GIBISBIG
               </a>
             </div>
+            <p className="text-[11px] text-muted-foreground/80">
+              <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="underline">{TELEGRAM_URL}</a>
+              {' · '}
+              <a href={TWITTER_X_URL} target="_blank" rel="noopener noreferrer" className="underline">{TWITTER_X_URL}</a>
+            </p>
           </div>
           <div className="space-y-2">
             <p className="text-sm font-semibold">Info</p>

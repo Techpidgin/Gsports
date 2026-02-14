@@ -136,79 +136,59 @@ export function Dashboard() {
           Dashboard
         </h2>
 
-        <div className="mb-6 grid gap-3 sm:gap-4 md:grid-cols-2 lg:mb-8 lg:grid-cols-4">
-          <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Wallet assets</CardTitle>
-                <Wallet className="h-4 w-4 text-muted-foreground" aria-hidden />
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Bet token</span>
-                  <span className="font-semibold">
-                    {balance?.rawBalance != null ? formatTokenAmount(balance.rawBalance as bigint, 18) : '—'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{gasTokenSymbol(chainId)} (gas)</span>
-                  <span className="font-semibold">
-                    {nativeBalance?.rawBalance != null ? formatTokenAmount(nativeBalance.rawBalance as bigint, 18) : '—'}
-                  </span>
-                </div>
-                {isPolygon && (
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">USDT</span>
-                    <span className="font-semibold">{usdtBalance?.formatted ?? '—'}</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Markets</CardTitle>
-                <Trophy className="h-4 w-4 text-muted-foreground" aria-hidden />
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">{games?.length ?? 0}</p>
-                <Link href="/markets">
-                  <Button variant="link" className="p-0 h-auto text-primary">
-                    Browse all
-                  </Button>
+        <div className="mb-6 lg:mb-8 relative overflow-hidden rounded-xl border border-border/70 bg-card/50">
+          <div className="absolute inset-0 opacity-[0.06] pointer-events-none">
+            <Image src="/logo.png" alt="" fill className="object-cover object-center" unoptimized />
+          </div>
+          <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-[0.05] pointer-events-none">
+            <Image src="/azuro.png" alt="" fill className="object-contain object-right" unoptimized />
+          </div>
+          <CardContent className="relative grid gap-2 p-3 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4 lg:gap-4 border-0 bg-transparent shadow-none">
+            <div className="rounded-md border border-border/60 bg-background/30 p-2.5">
+              <div className="flex items-center justify-between gap-1">
+                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Wallet</p>
+                <Wallet className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+              </div>
+              <p className="text-sm font-semibold mt-0.5">
+                {balance?.rawBalance != null ? formatTokenAmount(balance.rawBalance as bigint, 18) : '—'}
+              </p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{gasTokenSymbol(chainId)} {nativeBalance?.rawBalance != null ? formatTokenAmount(nativeBalance.rawBalance as bigint, 18) : '—'}</p>
+            </div>
+            <div className="rounded-md border border-border/60 bg-background/30 p-2.5">
+              <div className="flex items-center justify-between gap-1">
+                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Markets</p>
+                <Trophy className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+              </div>
+              <p className="text-sm font-semibold mt-0.5">{games?.length ?? 0}</p>
+              <Link href="/markets">
+                <Button variant="link" className="p-0 h-auto text-primary text-[11px]">Browse all</Button>
+              </Link>
+            </div>
+            <div className="rounded-md border border-border/60 bg-background/30 p-2.5">
+              <div className="flex items-center justify-between gap-1">
+                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Active bets</p>
+                <Zap className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+              </div>
+              <p className="text-sm font-semibold mt-0.5">{address ? activeBets.length : '—'}</p>
+              <Link href="/bets">
+                <Button variant="link" className="p-0 h-auto text-primary text-[11px]">Open activity</Button>
+              </Link>
+            </div>
+            <div className="rounded-md border border-border/60 bg-background/30 p-2.5">
+              <div className="flex items-center justify-between gap-1">
+                <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Settled</p>
+                <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+              </div>
+              <p className="text-sm font-semibold mt-0.5">{address ? settledBets.length : '—'}</p>
+              {address ? (
+                <Link href="/history">
+                  <Button variant="link" className="p-0 h-auto text-primary text-[11px]">View history</Button>
                 </Link>
-              </CardContent>
-            </Card>
-          <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active bets</CardTitle>
-                <Zap className="h-4 w-4 text-muted-foreground" aria-hidden />
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">{address ? activeBets.length : '—'}</p>
-                <Link href="/bets">
-                  <Button variant="link" className="p-0 h-auto text-primary">
-                    Open activity
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
-          <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Settled bets</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" aria-hidden />
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">{address ? settledBets.length : '—'}</p>
-                {address ? (
-                  <Link href="/history">
-                    <Button variant="link" className="p-0 h-auto text-primary">
-                      View history
-                    </Button>
-                  </Link>
-                ) : (
-                  <p className="text-sm text-muted-foreground">Connect wallet to load your data</p>
-                )}
-              </CardContent>
-            </Card>
+              ) : (
+                <p className="text-[10px] text-muted-foreground">Connect wallet</p>
+              )}
+            </div>
+          </CardContent>
         </div>
         {betsRefreshing && address && (
           <p className="text-xs text-muted-foreground">Syncing your activity...</p>

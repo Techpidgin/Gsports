@@ -19,6 +19,9 @@ const nav = [
   { href: '/bets', label: 'Activity' },
 ];
 
+const TELEGRAM_URL = process.env.NEXT_PUBLIC_TELEGRAM_URL?.trim() || 'https://t.me/+f_RvvwXltxJlYjVk';
+const TWITTER_X_URL = process.env.NEXT_PUBLIC_TWITTER_URL?.trim() || 'https://x.com/GIBISBIG';
+
 export function Header() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -66,6 +69,8 @@ export function Header() {
         </nav>
 
         <div className="hidden md:flex items-center gap-2 min-h-9">
+          <a href={TWITTER_X_URL} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground text-xs font-medium" aria-label="X @GIBISBIG">X</a>
+          <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground text-xs font-medium" aria-label="Telegram">TG</a>
           <ClientOnly
             placeholder={
               <>
@@ -107,6 +112,10 @@ export function Header() {
                     </span>
                   </Link>
                 ))}
+                <div className="flex gap-3 pt-2">
+                  <a href={TWITTER_X_URL} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground underline hover:text-foreground" onClick={() => setMobileOpen(false)}>X @GIBISBIG</a>
+                  <a href={TELEGRAM_URL} target="_blank" rel="noopener noreferrer" className="text-xs text-muted-foreground underline hover:text-foreground" onClick={() => setMobileOpen(false)}>Telegram</a>
+                </div>
               </nav>
               <div className="mt-auto border-t border-border px-5 py-5 pb-7">
                 <ClientOnly
