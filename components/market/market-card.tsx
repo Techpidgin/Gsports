@@ -66,6 +66,7 @@ function ClashPanel({ src, side }: { src?: string | null; side: 'left' | 'right'
 
 export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOutcomeIds }: MarketCardProps) {
   const { data: conditions, isLoading: conditionsLoading } = useConditions({ gameId: game.id });
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
 
   const participants = game.participants ?? [];
   const home = participants[0]?.name ?? 'TBD';
@@ -76,6 +77,9 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOu
   const sportName = game.sport?.name ?? 'Sport';
   const leagueName = game.league?.name ?? '';
   const startTime = game.startsAt ? new Date(Number(game.startsAt) * 1000) : null;
+  const visibleConditions = conditions?.slice(0, 2) ?? [];
+  const extraConditions = conditions?.slice(2) ?? [];
+  const hasMoreOptions = extraConditions.length > 0;
 
   return (
     <div className="h-full">
@@ -119,7 +123,7 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOu
             <Skeleton className="h-20 w-full rounded-md" />
           ) : (
             <div className="space-y-3">
-              {conditions?.slice(0, 3).map((condition) => {
+              {visibleConditions.map((condition) => {
                 const outcomes = condition.outcomes ?? [];
                 const firstOutcomeId = outcomes[0] ? String(outcomes[0].outcomeId) : '';
                 const marketName = getConditionMarketName(firstOutcomeId);
@@ -202,6 +206,106 @@ export function MarketCard({ game, onAddSelection, onRemoveSelection, selectedOu
                   </div>
                 );
               })}
+              {hasMoreOptions && (
+                <div className="space-y-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 w-full border-border/70 bg-background/50 text-xs uppercase tracking-wide hover:border-primary/55"
+                    onClick={() => setShowMoreOptions((prev) => !prev)}
+                    aria-expanded={showMoreOptions}
+                  >
+                    {showMoreOptions ? 'Hide options' : `More options (${extraConditions.length})`}
+                  </Button>
+                  {showMoreOptions && (
+                    <div className="space-y-3 rounded-md border border-border/60 bg-background/30 p-2">
+                      {extraConditions.map((condition) => {
+                        const outcomes = condition.outcomes ?? [];
+                        const firstOutcomeId = outcomes[0] ? String(outcomes[0].outcomeId) : '';
+                        const marketName = getConditionMarketName(firstOutcomeId);
+                        const show1X2 = isFullTimeResultStyle(outcomes.length, marketName);
+
+                        return (
+                          <div key={condition.id} className="space-y-1.5">
+                            {marketName && !show1X2 && (
+                              <p className="text-xs font-medium text-muted-foreground">{marketName}</p>
+                            )}
+                            {show1X2 && outcomes.length === 3 ? (
+                              <div className="space-y-1">
+                                <p className="text-xs font-medium text-muted-foreground">Full Time Result</p>
+                                <div className="grid grid-cols-3 gap-2">
+                                  {(['1', 'X', '2'] as const).map((label, idx) => {
+                                    const outcome = outcomes[idx];
+                                    if (!outcome) return null;
+                                    const rawOdds = (outcome as { odds?: string | number })?.odds;
+                                    const value = parseOdds(rawOdds);
+                                    const isSelected = selectedOutcomeIds.includes(outcome.outcomeId);
+                                    const selection = { outcomeId: outcome.outcomeId, conditionId: condition.id };
+                                    return (
+                                      <Button
+                                        key={outcome.outcomeId}
+                                        variant={isSelected ? 'default' : 'outline'}
+                                        size="sm"
+                                        className={cn(
+                                          'flex h-12 flex-col gap-0.5 px-1',
+                                          isSelected && 'ring-2 ring-primary-foreground/20'
+                                        )}
+                                        onClick={() =>
+                                          isSelected
+                                            ? onRemoveSelection(selection)
+                                            : onAddSelection({ ...selection, gameId: game.id, isExpressForbidden: false })
+                                        }
+                                        aria-pressed={isSelected}
+                                        aria-label={`${label} ${label === '1' ? 'Home win' : label === 'X' ? 'Draw' : 'Away win'} ${formatOdds(value)}`}
+                                      >
+                                        <span className="text-sm font-semibold">{label}</span>
+                                        <span className="text-xs tabular-nums opacity-90">{formatOdds(value)}</span>
+                                      </Button>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="grid grid-cols-2 gap-2">
+                                {outcomes.map((outcome, idx) => {
+                                  const rawOdds = (outcome as { odds?: string | number })?.odds;
+                                  const value = parseOdds(rawOdds);
+                                  const isSelected = selectedOutcomeIds.includes(outcome.outcomeId);
+                                  const selection = { outcomeId: outcome.outcomeId, conditionId: condition.id };
+                                  const displayLabel = getOutcomeDisplayLabel({
+                                    outcomeId: String(outcome.outcomeId),
+                                    title: outcome.title ?? undefined,
+                                    outcomeIndex: idx,
+                                    totalOutcomes: outcomes.length,
+                                    marketName,
+                                  });
+                                  return (
+                                    <Button
+                                      key={outcome.outcomeId}
+                                      variant={isSelected ? 'default' : 'outline'}
+                                      size="sm"
+                                      className={cn(
+                                        'h-11 w-full justify-between border-border/70 bg-background/50 px-2 tabular-nums hover:border-primary/55',
+                                        isSelected && 'ring-2 ring-primary-foreground/20'
+                                      )}
+                                      onClick={() => (isSelected ? onRemoveSelection(selection) : onAddSelection({ ...selection, gameId: game.id, isExpressForbidden: false }))}
+                                      aria-pressed={isSelected}
+                                      aria-label={`${displayLabel} ${formatOdds(value)}`}
+                                    >
+                                      <span className="truncate text-xs">{displayLabel}</span>
+                                      <span className="ml-1.5 font-semibold">{formatOdds(value)}</span>
+                                    </Button>
+                                  );
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </CardContent>

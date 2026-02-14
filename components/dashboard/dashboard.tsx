@@ -99,6 +99,18 @@ export function Dashboard() {
             ))}
           </div>
         </div>
+        <Link href="/markets" className="mb-4 block overflow-hidden rounded-xl border border-border/70 bg-card/40">
+          <div className="relative h-28 sm:h-36">
+            <Image src="/banner1.png" alt="Gibisbig featured markets" fill className="object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-black/70" />
+            <div className="relative z-10 flex h-full items-end p-3 sm:p-4">
+              <div>
+                <p className="text-xs uppercase tracking-[0.18em] text-primary">Featured</p>
+                <p className="text-sm font-semibold sm:text-base">Open today&apos;s best markets and hot odds</p>
+              </div>
+            </div>
+          </div>
+        </Link>
         <h1 id="dashboard-heading" className="mb-2 text-2xl font-bold sm:text-3xl">
           Gibisbig
         </h1>

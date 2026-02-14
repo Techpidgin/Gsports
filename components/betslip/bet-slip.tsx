@@ -1,7 +1,7 @@
 'use client';
 
-import { useBaseBetslip, useDetailedBetslip, useBet, useBetFee, useMaxBet, useBetTokenBalance, useGame, useConditions } from '@azuro-org/sdk';
-import { useAccount } from 'wagmi';
+import { useBaseBetslip, useDetailedBetslip, useBet, useBetFee, useMaxBet, useBetTokenBalance, useGame, useConditions, useChain, useNativeBalance } from '@azuro-org/sdk';
+import { useAccount, useBalance } from 'wagmi';
 import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,6 +17,15 @@ type TicketItem = {
   conditionId: string;
   gameId: string;
 };
+const POLYGON_USDT = '0xc2132D05D31c914a87C6611C10748AEb04B58e8F' as const;
+
+function gasTokenSymbol(chainId: number) {
+  if (chainId === 137 || chainId === 80002) return 'POL';
+  if (chainId === 100) return 'xDAI';
+  if (chainId === 8453 || chainId === 84532) return 'ETH';
+  if (chainId === 88888 || chainId === 88882) return 'CHZ';
+  return 'Gas';
+}
 
 function formatTinyDate(unix: string | null | undefined) {
   if (!unix) return 'TBD';
@@ -85,11 +94,20 @@ function TicketSelectionRow({
 
 export function BetSlip() {
   const { address } = useAccount();
+  const chain = useChain();
+  const chainId = chain?.appChain?.id;
   const { items, removeItem, clear } = useBaseBetslip();
   const { betAmount, changeBetAmount, totalOdds, odds } = useDetailedBetslip();
   const { data: fee } = useBetFee();
   const { data: maxBet } = useMaxBet({ selections: items });
   const { data: balance } = useBetTokenBalance();
+  const { data: nativeBalance } = useNativeBalance();
+  const isPolygon = chainId === 137 || chainId === 80002;
+  const { data: usdtBalance } = useBalance({
+    address,
+    token: isPolygon ? POLYGON_USDT : undefined,
+    query: { enabled: Boolean(address) && isPolygon },
+  });
   const selections = items.map((i) => ({ outcomeId: i.outcomeId, conditionId: i.conditionId }));
   const onSuccess = useCallback(() => {
     toast.success('Bet placed successfully');
@@ -109,6 +127,7 @@ export function BetSlip() {
   const stakeNum = parseFloat(betAmount) || 0;
   const potentialWin = stakeNum * totalOdds;
   const balanceFormatted = balance?.rawBalance != null ? formatTokenAmount(balance.rawBalance as bigint, 18) : '0';
+  const nativeBalanceFormatted = nativeBalance?.rawBalance != null ? formatTokenAmount(nativeBalance.rawBalance as bigint, 18) : '0';
   const isPending = betTxState?.isPending ?? betTxState?.isProcessing ?? false;
   const ticketRef = items.length > 0 ? `#${items[0].conditionId.slice(0, 4)}${items.length}${items[items.length - 1].outcomeId.slice(-3)}` : '#----';
 
@@ -181,6 +200,22 @@ export function BetSlip() {
                 Balance: {balanceFormatted}
                 {maxBet != null && ` • Max: ${maxBet}`}
               </p>
+              <div className="grid grid-cols-1 gap-1 rounded-md border border-border/60 bg-background/25 p-2 text-xs text-muted-foreground">
+                <p className="flex items-center justify-between">
+                  <span>Bet token</span>
+                  <span className="font-medium text-foreground">{balanceFormatted}</span>
+                </p>
+                <p className="flex items-center justify-between">
+                  <span>{gasTokenSymbol(chainId ?? 0)} (gas)</span>
+                  <span className="font-medium text-foreground">{nativeBalanceFormatted}</span>
+                </p>
+                {isPolygon && (
+                  <p className="flex items-center justify-between">
+                    <span>USDT</span>
+                    <span className="font-medium text-foreground">{usdtBalance?.formatted ?? '0'}</span>
+                  </p>
+                )}
+              </div>
             </div>
 
             {fee?.formattedRelayerFeeAmount && stakeNum > 0 && (

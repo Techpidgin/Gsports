@@ -22,6 +22,19 @@ import { Wallet, LogOut, Copy, Check } from 'lucide-react';
 import { useState } from 'react';
 import { shortenAddress } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import { useBetTokenBalance, useChain, useNativeBalance } from '@azuro-org/sdk';
+import { formatTokenAmount } from '@/lib/utils';
+import { useBalance } from 'wagmi';
+
+const POLYGON_USDT = '0xc2132D05D31c914a87C6611C10748AEb04B58e8F' as const;
+
+function gasTokenSymbol(chainId: number) {
+  if (chainId === 137 || chainId === 80002) return 'POL';
+  if (chainId === 100) return 'xDAI';
+  if (chainId === 8453 || chainId === 84532) return 'ETH';
+  if (chainId === 88888 || chainId === 88882) return 'CHZ';
+  return 'Gas';
+}
 
 export function WalletButton({ className }: { className?: string }) {
   const { address, isConnected } = useAccount();
@@ -29,6 +42,16 @@ export function WalletButton({ className }: { className?: string }) {
   const { connect, connectors, isPending } = useConnect();
   const [copied, setCopied] = useState(false);
   const [evmOpen, setEvmOpen] = useState(false);
+  const chain = useChain();
+  const chainId = chain?.appChain?.id;
+  const { data: betTokenBalance } = useBetTokenBalance();
+  const { data: nativeBalance } = useNativeBalance();
+  const isPolygon = chainId === 137 || chainId === 80002;
+  const { data: usdtBalance } = useBalance({
+    address,
+    token: isPolygon ? POLYGON_USDT : undefined,
+    query: { enabled: Boolean(address) && isPolygon },
+  });
 
   const displayAddress = address;
 
@@ -66,6 +89,27 @@ export function WalletButton({ className }: { className?: string }) {
               )}
             </div>
           </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <div className="space-y-1 px-2 py-1.5 text-xs">
+            <div className="flex items-center justify-between gap-2 text-muted-foreground">
+              <span>Bet token</span>
+              <span className="font-medium text-foreground">
+                {betTokenBalance?.rawBalance != null ? formatTokenAmount(betTokenBalance.rawBalance as bigint, 18) : '—'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between gap-2 text-muted-foreground">
+              <span>{gasTokenSymbol(chainId ?? 0)} (gas)</span>
+              <span className="font-medium text-foreground">
+                {nativeBalance?.rawBalance != null ? formatTokenAmount(nativeBalance.rawBalance as bigint, 18) : '—'}
+              </span>
+            </div>
+            {isPolygon && (
+              <div className="flex items-center justify-between gap-2 text-muted-foreground">
+                <span>USDT</span>
+                <span className="font-medium text-foreground">{usdtBalance?.formatted ?? '—'}</span>
+              </div>
+            )}
+          </div>
           <DropdownMenuSeparator />
           {isConnected && (
             <DropdownMenuItem onClick={handleDisconnectEVM}>

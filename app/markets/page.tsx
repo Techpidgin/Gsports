@@ -1,6 +1,6 @@
 'use client';
 
-import { useGames, useBaseBetslip, useSportsNavigation, useChain } from '@azuro-org/sdk';
+import { useGames, useBaseBetslip, useSportsNavigation, useChain, useBetTokenBalance, useNativeBalance } from '@azuro-org/sdk';
 import { useMemo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { MarketCard } from '@/components/market/market-card';
@@ -15,6 +15,8 @@ import { cn } from '@/lib/utils';
 import { useIsClient } from '@/lib/use-is-client';
 import { DEFAULT_CHAIN_ID } from '@/lib/azuro-chains';
 import { APP_CONFIG } from '@/lib/app-config';
+import { formatTokenAmount } from '@/lib/utils';
+import { useAccount, useBalance } from 'wagmi';
 
 type TimeFilter = 'all' | 'today' | 'tomorrow' | '1h' | '3h' | '6h';
 
@@ -26,6 +28,15 @@ const TIME_FILTERS: { value: TimeFilter; label: string }[] = [
   { value: '3h', label: '3h' },
   { value: '6h', label: '6h' },
 ];
+const POLYGON_USDT = '0xc2132D05D31c914a87C6611C10748AEb04B58e8F' as const;
+
+function gasTokenSymbol(chainId: number) {
+  if (chainId === 137 || chainId === 80002) return 'POL';
+  if (chainId === 100) return 'xDAI';
+  if (chainId === 8453 || chainId === 84532) return 'ETH';
+  if (chainId === 88888 || chainId === 88882) return 'CHZ';
+  return 'Gas';
+}
 
 const COUNTRY_TO_ISO: Record<string, string> = {
   england: 'GB',
@@ -126,6 +137,15 @@ export default function MarketsPage() {
     query: { enabled: isClient },
   });
   const { items, addItem, removeItem } = useBaseBetslip();
+  const { address } = useAccount();
+  const { data: balance } = useBetTokenBalance();
+  const { data: nativeBalance } = useNativeBalance();
+  const isPolygon = chainId === 137 || chainId === 80002;
+  const { data: usdtBalance } = useBalance({
+    address,
+    token: isPolygon ? POLYGON_USDT : undefined,
+    query: { enabled: Boolean(address) && isPolygon },
+  });
 
   const sports = nav ?? [];
   const q = searchQuery.trim().toLowerCase();
@@ -361,34 +381,60 @@ export default function MarketsPage() {
             aria-label="Search markets"
           />
         </div>
-        <div className="relative overflow-hidden rounded-xl border border-border/80 bg-card/50 p-3.5 sm:p-4">
-          <Image
-            src="/logo.png"
-            alt=""
-            width={900}
-            height={280}
-            className="pointer-events-none absolute -right-12 -top-12 h-40 w-auto opacity-10"
-          />
-          <h1 className="text-2xl font-bold">Sports Markets</h1>
-          <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-            <strong>{APP_CONFIG.promoHeadline}.</strong>
-            <br />
-            {APP_CONFIG.promoSecondary}.
-          </p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {TIME_FILTERS.map((f) => (
-              <Button
-                key={f.value}
-                variant={timeFilter === f.value ? 'secondary' : 'outline'}
-                size="sm"
-                className="h-9 min-w-[54px]"
-                onClick={() => setTimeFilter(f.value)}
-              >
-                {f.label}
-              </Button>
-            ))}
+        <div className="relative overflow-hidden rounded-xl border border-border/80 bg-card/50 p-4 sm:p-6">
+          <div className="pointer-events-none absolute inset-0">
+            <Image src="/banner2.png" alt="" fill className="object-cover opacity-25" />
+            <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-transparent" />
+          </div>
+          <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
+                Live Betting is Always On
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed max-w-xl">
+                Every second matters. Every mistake can be value. Every play is a bet.
+              </p>
+              <Link href="#markets-grid" className="inline-block mt-3">
+                <Button size="lg" className="font-semibold">
+                  BET NOW
+                </Button>
+              </Link>
+            </div>
+            <div className="flex flex-wrap gap-2 sm:justify-end">
+              {TIME_FILTERS.map((f) => (
+                <Button
+                  key={f.value}
+                  variant={timeFilter === f.value ? 'secondary' : 'outline'}
+                  size="sm"
+                  className="h-9 min-w-[54px]"
+                  onClick={() => setTimeFilter(f.value)}
+                >
+                  {f.label}
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
+        <Card className="border-border/70 bg-card/50">
+          <CardContent className="grid gap-2 p-3 sm:grid-cols-3 sm:gap-3">
+            <div className="rounded-md border border-border/60 bg-background/30 p-2.5">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Bet token</p>
+              <p className="text-sm font-semibold">
+                {balance?.rawBalance != null ? formatTokenAmount(balance.rawBalance as bigint, 18) : '—'}
+              </p>
+            </div>
+            <div className="rounded-md border border-border/60 bg-background/30 p-2.5">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{gasTokenSymbol(chainId)} (gas)</p>
+              <p className="text-sm font-semibold">
+                {nativeBalance?.rawBalance != null ? formatTokenAmount(nativeBalance.rawBalance as bigint, 18) : '—'}
+              </p>
+            </div>
+            <div className="rounded-md border border-border/60 bg-background/30 p-2.5">
+              <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{isPolygon ? 'USDT' : 'Stablecoin'}</p>
+              <p className="text-sm font-semibold">{isPolygon ? (usdtBalance?.formatted ?? '—') : '—'}</p>
+            </div>
+          </CardContent>
+        </Card>
         <section className="overflow-hidden rounded-xl border border-border/70 bg-background/35">
           <div className="marquee-track py-3 text-sm font-medium text-muted-foreground">
             {[...Array(2)].map((_, loop) => (
@@ -408,7 +454,7 @@ export default function MarketsPage() {
             ))}
           </div>
         </section>
-        <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/40 p-3 sm:p-4">
+        <div id="markets-grid" className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/40 p-3 sm:p-4 scroll-mt-4">
           <Image
             src="/logo.png"
             alt=""
