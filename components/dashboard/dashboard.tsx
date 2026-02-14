@@ -42,7 +42,7 @@ function gasTokenSymbol(chainId: number) {
 }
 
 const BANNER_SLIDES = ['/banner1.png', '/banner2.png'] as const;
-const SLIDE_INTERVAL_MS = 6000;
+const SLIDE_INTERVAL_MS = 2 * 60 * 1000; // 2 minutes
 
 function BannerSlideshow() {
   const [index, setIndex] = useState(0);
@@ -62,13 +62,14 @@ function BannerSlideshow() {
           fill
           className={cn(
             'object-cover object-top transition-opacity duration-700',
-            i === index ? 'opacity-100 z-10' : 'opacity-0 z-0'
+            i === index ? 'opacity-100 z-0' : 'opacity-0 z-0'
           )}
         />
       ))}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent pointer-events-none" />
-      <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6 pb-6 sm:pb-8 pointer-events-none">
-        <p className="max-w-3xl text-base sm:text-lg md:text-xl text-white/95 drop-shadow-md leading-relaxed">
+      <div className="absolute inset-0 z-10 bg-black/50 pointer-events-none" />
+      <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 z-20 flex flex-col justify-end p-4 sm:p-6 pb-6 sm:pb-8 pointer-events-none">
+        <p className="max-w-3xl text-base sm:text-lg md:text-xl text-white drop-shadow-lg leading-relaxed">
           Onchain decentralized prediction and sports markets. Suitable for agentic interactions — super fast, self cashout, no bans, no limits, no KYC.
         </p>
       </div>
